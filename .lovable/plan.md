@@ -1,20 +1,13 @@
 ## O que será feito
 
-Adicionar os campos `utm_content` e `utm_term` ao fluxo completo de captura, armazenamento e envio de UTMs para a planilha Google Sheets de leads.
+Substituir a foto atual do Silvino (à direita na Hero) pela imagem enviada dos palestrantes (`bg_fundo_desktop.webp`), posicionada no topo centralizado da seção.
 
 ## Arquivos alterados
 
-### 1. `src/lib/utm.ts`
-- Adicionar `utm_content?: string` e `utm_term?: string` ao tipo `Utms`.
-- Incluir os dois novos campos no array `FIELDS`, para que também sejam capturados da URL e persistidos no `sessionStorage`.
+### 1. Asset pointer
+- Criar `src/assets/bg-fundo-desktop.webp.asset.json` a partir do upload do usuário via `lovable-assets`.
 
-### 2. `src/routes/api/public/lead.ts`
-- Adicionar `utm_content` e `utm_term` ao schema Zod (`leadSchema`).
-- Incluir os dois campos na row enviada para a planilha.
-- Expandir o range da planilha de `A:J` para `A:L` (2 colunas a mais).
-
-### 3. `src/components/sections/CheckoutProvider.tsx`
-- Adicionar `utm_content` e `utm_term` ao payload do `postLead`, lendo de `getStoredUtms()`.
-
-## Nota
-É necessário adicionar manualmente os cabeçalhos das novas colunas (`utm_content`, `utm_term`) na planilha Google Sheets, na mesma ordem em que aparecem na row.
+### 2. `src/components/sections/Hero.tsx`
+- Substituir `src={PHOTOS[1]}` pelo novo asset.
+- Alterar `className` da imagem para usar `object-top` ao invés de `object-[center_20%]`, garantindo posicionamento superior centralizado.
+- Ajustar os gradientes de overlay conforme necessário para manter a legibilidade do texto sobre a nova imagem.

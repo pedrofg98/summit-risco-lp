@@ -1,24 +1,23 @@
 import { Check, Mountain } from "lucide-react";
 import { BlurFade } from "@/components/magicui/blur-fade";
 import { CtaLink } from "./CtaLink";
-import { EVENT, PHOTOS, LEARN, getActiveLote } from "@/data/summit";
+import { EVENT, LEARN, getActiveLote } from "@/data/summit";
+import bgFundoDesktop from "@/assets/bg-fundo-desktop.webp.asset.json";
 
 const ACTIVE = getActiveLote();
 
 export function Hero() {
   return (
     <section className="relative overflow-hidden bg-background">
-      {/* foto do Silvino sangrando à direita */}
-      <div className="pointer-events-none absolute inset-y-0 right-0 hidden w-[52%] lg:block">
+      {/* fundo dos palestrantes — topo centralizado */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 hidden h-full lg:block">
         <img
-          src={PHOTOS[1]}
-          alt="Silvino Santos"
-          className="h-full w-full object-cover object-[center_20%]"
+          src={bgFundoDesktop.url}
+          alt="Palestrantes do Summit R.I.S.C.O. 2026"
+          className="h-full w-full object-cover object-top"
           loading="eager"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/55 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-background to-transparent" />
-        <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-background/70 to-transparent" />
       </div>
 
       {/* ambiência */}
