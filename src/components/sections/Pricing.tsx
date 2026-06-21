@@ -91,7 +91,7 @@ export function Pricing() {
               Garanta sua vaga no <span className="text-gold">menor valor</span> antes
               do próximo lote.
             </p>
-            <CtaLink href={active.link} size="lg">
+            <CtaLink href={active.link} size="lg" lote={active.name} preco={`R$${active.price}`}>
               Garantir minha vaga por R${active.price}
             </CtaLink>
             <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
