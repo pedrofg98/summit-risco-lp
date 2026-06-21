@@ -2,7 +2,9 @@ import { Instagram } from "lucide-react";
 import { BlurFade } from "@/components/magicui/blur-fade";
 import { LightRays } from "@/components/magicui/light-rays";
 import { CtaLink } from "./CtaLink";
-import { EVENT } from "@/data/summit";
+import { EVENT, LOTES } from "@/data/summit";
+
+const ACTIVE = LOTES.find((l) => l.status === "active") ?? LOTES[0];
 
 export function Footer() {
   return (
@@ -27,7 +29,7 @@ export function Footer() {
             </p>
           </BlurFade>
           <BlurFade delay={0.28}>
-            <CtaLink href={EVENT.checkout}>Garantir minha vaga por R$29</CtaLink>
+            <CtaLink href={EVENT.checkout} lote={ACTIVE.name} preco={`R$${ACTIVE.price}`}>Garantir minha vaga por R${ACTIVE.price}</CtaLink>
           </BlurFade>
         </div>
       </div>

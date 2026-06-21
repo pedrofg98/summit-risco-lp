@@ -3,7 +3,9 @@ import { BlurFade } from "@/components/magicui/blur-fade";
 import { MagicCard } from "@/components/magicui/magic-card";
 import { SectionHeading } from "./SectionHeading";
 import { CtaLink } from "./CtaLink";
-import { LEARN, EVENT } from "@/data/summit";
+import { LEARN, EVENT, LOTES } from "@/data/summit";
+
+const ACTIVE = LOTES.find((l) => l.status === "active") ?? LOTES[0];
 
 export function Learn() {
   return (
@@ -39,7 +41,7 @@ export function Learn() {
 
         <BlurFade delay={0.1}>
           <div className="flex justify-center">
-            <CtaLink href={EVENT.checkout}>Garantir minha vaga por R$29</CtaLink>
+            <CtaLink href={EVENT.checkout} lote={ACTIVE.name} preco={`R$${ACTIVE.price}`}>Garantir minha vaga por R${ACTIVE.price}</CtaLink>
           </div>
         </BlurFade>
       </div>

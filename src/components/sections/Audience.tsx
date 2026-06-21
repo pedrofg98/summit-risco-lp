@@ -2,7 +2,9 @@ import { UserCheck } from "lucide-react";
 import { BlurFade } from "@/components/magicui/blur-fade";
 import { SectionHeading } from "./SectionHeading";
 import { CtaLink } from "./CtaLink";
-import { AUDIENCE, EVENT } from "@/data/summit";
+import { AUDIENCE, EVENT, LOTES } from "@/data/summit";
+
+const ACTIVE = LOTES.find((l) => l.status === "active") ?? LOTES[0];
 
 export function Audience() {
   return (
@@ -32,7 +34,7 @@ export function Audience() {
 
         <BlurFade>
           <div className="flex justify-center">
-            <CtaLink href={EVENT.checkout}>Garantir minha vaga por R$29</CtaLink>
+            <CtaLink href={EVENT.checkout} lote={ACTIVE.name} preco={`R$${ACTIVE.price}`}>Garantir minha vaga por R${ACTIVE.price}</CtaLink>
           </div>
         </BlurFade>
       </div>
