@@ -85,9 +85,6 @@ export function Pricing() {
         {/* tagline + card de compra centralizado */}
         <BlurFade delay={0.1}>
           <div className="mx-auto flex max-w-md flex-col items-center gap-5 text-center">
-            <p className="text-balance text-sm text-muted-foreground">
-              Não tem gravação. Ou você entra ao vivo, ou perde.
-            </p>
             <CtaLink href={active.link} size="lg" lote={active.name} preco={`R$${active.price}`}>
               Garantir minha vaga por R${active.price}
             </CtaLink>
