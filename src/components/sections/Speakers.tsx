@@ -1,7 +1,7 @@
 import { BlurFade } from "@/components/magicui/blur-fade";
 import { MagicCard } from "@/components/magicui/magic-card";
 import { SectionHeading } from "./SectionHeading";
-import { SPEAKERS, PHOTOS } from "@/data/summit";
+import { SPEAKERS } from "@/data/summit";
 
 function initials(name: string) {
   return name
