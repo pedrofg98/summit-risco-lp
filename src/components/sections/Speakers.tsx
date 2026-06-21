@@ -51,7 +51,6 @@ export function Speakers() {
                           </span>
                         </div>
                       )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                       {isSilvino && (
                         <span className="absolute left-3 top-3 rounded-full bg-gold px-2.5 py-1 text-[0.6rem] font-bold uppercase tracking-wide text-gold-ink">
                           Idealizador

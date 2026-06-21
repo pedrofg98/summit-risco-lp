@@ -1,21 +1,19 @@
 ## O que será feito
 
-Substituir as 6 imagens de depoimentos atuais pelas 6 novas enviadas, mantendo a mesma estrutura de exibição (grid masonry com modal de zoom).
+Remover o gradiente preto que cobre as fotos dos palestrantes na seção "Time de palestrantes".
 
-## Arquivos alterados
+## Detalhe técnico
 
-### 1. Novos asset pointers (via `lovable-assets`)
-Subir as 6 imagens enviadas para o CDN e gerar os pointers em `src/assets/`:
-- `depoimento-1.webp.asset.json` ← `Group_21x.webp` (Carla — pontos focais)
-- `depoimento-2.webp.asset.json` ← `Group_31x.webp` (Ana Franco / Jader)
-- `depoimento-3.webp.asset.json` ← `Group_41x.webp` (AnaCarolina — GPT)
-- `depoimento-4.webp.asset.json` ← `Group_51x.webp` (Raquel Lima)
-- `depoimento-5.webp.asset.json` ← `Group_61x.webp` (Carla — grupo focal)
-- `depoimento-6.webp.asset.json` ← `WhatsApp_Image_2026-06-15_at_23.29.22_1_11x-2.webp` (Milena)
+Em `src/components/sections/Speakers.tsx`, a linha:
 
-Os arquivos `.asset.json` existentes serão sobrescritos (`--overwrite`), mantendo os mesmos imports em `src/data/summit.ts` — nenhuma mudança de código necessária.
+```tsx
+<div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+```
+
+Cria um overlay escuro de 70% de opacidade vindo de baixo para cima sobre cada foto. Essa camada será removida, deixando as fotos limpas sem o filtro preto.
 
 ## O que NÃO será alterado
-- `src/data/summit.ts` (imports continuam iguais).
-- `src/components/sections/Testimonials.tsx`.
-- Qualquer outra seção da página.
+
+- Layout, bordas arredondadas e bordas douradas das fotos permanecem.
+- A tag "Idealizador" no Silvino Santos permanece.
+- Todo o restante do card (nome, cargo, bio) permanece igual.
