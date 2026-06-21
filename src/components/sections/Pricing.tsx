@@ -3,11 +3,13 @@ import { BlurFade } from "@/components/magicui/blur-fade";
 import { Meteors } from "@/components/magicui/meteors";
 import { SectionHeading } from "./SectionHeading";
 import { CtaLink } from "./CtaLink";
-import { LOTES } from "@/data/summit";
+import { getLotesWithStatus } from "@/data/summit";
 import { cn } from "@/lib/utils";
 
 export function Pricing() {
-  const active = LOTES.find((l) => l.status === "active") ?? LOTES[0];
+  const lotes = getLotesWithStatus();
+  const active = lotes.find((l) => l.status === "active") ?? lotes[0];
+
 
   return (
     <section
