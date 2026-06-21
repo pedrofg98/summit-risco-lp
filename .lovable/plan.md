@@ -1,43 +1,24 @@
-## Plano
+## Diagnóstico
 
-Planilha: `1pLj3TDp1dvcNfSDVWkxP51zOmYz6ZidV4MbpGVmkmc0` — aba `Leads`.
+Calma — **isso é local só no seu navegador**. Nenhum outro lead vê seus dados.
 
-Cabeçalho esperado (linha 1, A:J):
-```
-data | nome | email | telefone | lote | preco | utm_source | utm_medium | utm_campaign | url
-```
+O que está acontecendo: quando você submeteu o formulário a primeira vez, o código salvou `{nome, email, telefone}` no `localStorage` do **seu** navegador (chave `summit_lead_v1`), em `src/lib/kiwify.ts → saveStoredLead()`. Da próxima vez que o modal abre, o `loadStoredLead()` lê dessa chave e pré-preenche os campos. `localStorage` é por dispositivo + navegador — outro visitante abre com tudo vazio.
 
-### 1. Captura de UTM — `src/lib/utm.ts`
-Lê `utm_source`, `utm_medium`, `utm_campaign` da URL no primeiro carregamento e persiste em `sessionStorage`. Helper `getStoredUtms()` retorna o objeto.
+Você pode confirmar abrindo no anônimo / outro navegador: vai estar em branco.
 
-### 2. `CtaLink` passa lote/preço
-Adicionar props opcionais `lote?: string` e `preco?: string`. Cada uso atual (Hero, Pricing, Includes, etc.) recebe o rótulo correspondente — vou inferir pelo contexto de cada chamada (ex: cards de Pricing já têm o nome do lote).
+## O que mudar
 
-### 3. `CheckoutProvider.openCheckout(href, meta?)`
-Aceita `meta?: { lote?: string; preco?: string }`. Guarda em estado junto com `targetHref`.
+A pergunta é: você **quer** o pré-preenchimento ou prefere sempre vazio?
 
-### 4. Endpoint `src/routes/api/public/lead.ts`
-- `POST`, body validado com Zod: `name`, `email`, `phone`, `lote?`, `preco?`, `utm_source?`, `utm_medium?`, `utm_campaign?`, `url?`.
-- Chama gateway:
-  ```
-  POST https://connector-gateway.lovable.dev/google_sheets/v4/spreadsheets/1pLj3TDp1dvcNfSDVWkxP51zOmYz6ZidV4MbpGVmkmc0/values/Leads!A:J:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS
-  ```
-  Headers: `Authorization: Bearer ${LOVABLE_API_KEY}`, `X-Connection-Api-Key: ${GOOGLE_SHEETS_API_KEY}`.
-- Body: `{ values: [[dataISO_SaoPaulo, nome, email, telefoneMascarado, lote, preco, utm_source, utm_medium, utm_campaign, url]] }`.
-- Sempre responde `{ ok: true }` 200, mesmo em erro (loga server-side). Falha no Sheets nunca trava o checkout.
+**Opção A — manter pré-preenchimento (recomendado)**
+Útil pra quem clica num CTA, fecha o modal sem comprar, e volta depois — não precisa redigitar. Mantém como está. Você só limpa o seu localStorage uma vez (DevTools → Application → Local Storage → apagar `summit_lead_v1`) e pronto.
 
-### 5. Front dispara antes do redirect
-Em `CheckoutProvider.onSubmit`:
-1. `fetch('/api/public/lead', POST, JSON)` com `AbortController` timeout 2.5s.
-2. `Promise.allSettled([fetch])` — independente do resultado, salva localStorage e `window.location.href = buildKiwifyUrl(...)`.
+**Opção B — sempre abrir vazio**
+Remover o `loadStoredLead()` do `openCheckout` em `CheckoutProvider.tsx` e parar de chamar `saveStoredLead()` no submit. O modal sempre vem em branco, mesmo pra quem já preencheu antes.
 
-### Detalhes
-- Telefone na planilha: com máscara (`(11) 99999-9999`); no Kiwify continua só dígitos com `55`.
-- Data: `Intl.DateTimeFormat('pt-BR', { timeZone: 'America/Sao_Paulo' })` → `dd/MM/yyyy HH:mm:ss`.
-- `url` enviada = `window.location.href` no momento do submit (preserva UTMs originais).
+**Opção C — meio termo: lembrar só na mesma sessão**
+Trocar `localStorage` por `sessionStorage` em `kiwify.ts`. Persiste enquanto a aba estiver aberta; ao fechar, limpa. Bom equilíbrio entre conveniência e "começar limpo" em visitas novas.
 
-### Fora do escopo
-Deduplicação por e-mail, notificação, pixel Meta/GA4, CRM.
+## Pergunta
 
-### Pergunta única antes de implementar
-Confirma que a aba se chama exatamente **`Leads`** (com L maiúsculo) e que o cabeçalho da linha 1 já está preenchido com as 10 colunas acima? Se a aba tiver outro nome ou o cabeçalho ainda não estiver lá, me avise — o append funciona sem cabeçalho, mas a planilha fica sem rótulos.
+Qual opção quer? **A (manter), B (sempre vazio) ou C (só na sessão)?**
