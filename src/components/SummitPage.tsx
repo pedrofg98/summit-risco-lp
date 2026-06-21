@@ -1,4 +1,5 @@
 import { ScrollProgress } from "@/components/magicui/scroll-progress";
+import { CheckoutProvider } from "@/components/sections/CheckoutProvider";
 import { UrgencyBar } from "@/components/sections/UrgencyBar";
 import { Hero } from "@/components/sections/Hero";
 import { Divide } from "@/components/sections/Divide";
@@ -14,22 +15,24 @@ import { Footer } from "@/components/sections/Footer";
 
 export default function Index() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <ScrollProgress />
-      <UrgencyBar />
-      <main>
-        <Hero />
-        <Divide />
-        <About />
-        <Includes />
-        <Audience />
-        <Schedule />
-        <Speakers />
-        <Testimonials />
-        <Pricing />
-        <Faq />
-      </main>
-      <Footer />
-    </div>
+    <CheckoutProvider>
+      <div className="min-h-screen bg-background text-foreground">
+        <ScrollProgress />
+        <UrgencyBar />
+        <main>
+          <Hero />
+          <Divide />
+          <About />
+          <Includes />
+          <Audience />
+          <Schedule />
+          <Speakers />
+          <Testimonials />
+          <Pricing />
+          <Faq />
+        </main>
+        <Footer />
+      </div>
+    </CheckoutProvider>
   );
 }
