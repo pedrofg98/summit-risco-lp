@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -12,9 +12,15 @@ import {
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { buildKiwifyUrl, loadStoredLead, maskPhoneBR, saveStoredLead, type Lead } from "@/lib/kiwify";
+import { captureUtmsFromUrl, getStoredUtms } from "@/lib/utm";
+
+interface CheckoutMeta {
+  lote?: string;
+  preco?: string;
+}
 
 interface CheckoutContextValue {
-  openCheckout: (href: string) => void;
+  openCheckout: (href: string, meta?: CheckoutMeta) => void;
 }
 
 const CheckoutContext = createContext<CheckoutContextValue | null>(null);
@@ -42,10 +48,34 @@ const leadSchema = z.object({
 
 type LeadForm = z.infer<typeof leadSchema>;
 
+async function postLead(body: Record<string, string>): Promise<void> {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 2500);
+  try {
+    await fetch("/api/public/lead", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+      signal: ctrl.signal,
+      keepalive: true,
+    });
+  } catch {
+    // silencioso — nunca trava o checkout
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 export function CheckoutProvider({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const [targetHref, setTargetHref] = useState<string | null>(null);
+  const metaRef = useRef<CheckoutMeta>({});
   const [submitting, setSubmitting] = useState(false);
+
+  // captura UTMs uma vez no mount
+  useEffect(() => {
+    captureUtmsFromUrl();
+  }, []);
 
   const {
     register,
@@ -62,8 +92,9 @@ export function CheckoutProvider({ children }: { children: ReactNode }) {
   const phoneValue = watch("phone");
 
   const openCheckout = useCallback(
-    (href: string) => {
+    (href: string, meta?: CheckoutMeta) => {
       setTargetHref(href);
+      metaRef.current = meta ?? {};
       const stored = loadStoredLead();
       reset({
         name: stored?.name ?? "",
@@ -81,7 +112,7 @@ export function CheckoutProvider({ children }: { children: ReactNode }) {
     if (masked !== phoneValue) setValue("phone", masked, { shouldValidate: false });
   }, [phoneValue, setValue]);
 
-  const onSubmit = (values: LeadForm) => {
+  const onSubmit = async (values: LeadForm) => {
     if (!targetHref) return;
     setSubmitting(true);
     const lead: Lead = {
@@ -90,6 +121,21 @@ export function CheckoutProvider({ children }: { children: ReactNode }) {
       phone: values.phone,
     };
     saveStoredLead(lead);
+
+    const utms = getStoredUtms();
+    const meta = metaRef.current;
+    await postLead({
+      name: lead.name,
+      email: lead.email,
+      phone: lead.phone,
+      lote: meta.lote ?? "",
+      preco: meta.preco ?? "",
+      utm_source: utms.utm_source ?? "",
+      utm_medium: utms.utm_medium ?? "",
+      utm_campaign: utms.utm_campaign ?? "",
+      url: typeof window !== "undefined" ? window.location.href : "",
+    });
+
     const url = buildKiwifyUrl(targetHref, lead);
     window.location.href = url;
   };
