@@ -1,74 +1,67 @@
-
 ## Objetivo
 
-Criar um modal de pré-cadastro que abre ao clicar em qualquer CTA da página. Após preencher **nome, email e telefone**, o usuário é redirecionado para o checkout Kiwify do lote ativo, com os dados já preenchidos no formulário Kiwify.
+Antes de redirecionar pro Kiwify, gravar cada lead numa planilha Google Sheets sua, com nome, e-mail, telefone, lote clicado, UTMs e data/hora.
 
-## Como funciona o prefill no Kiwify
+## Como vai funcionar
 
-O Kiwify aceita prefill via **query string** na URL do checkout. Os parâmetros padrão são:
-
-```
-?name=Pedro%20Fernandes&email=pedro@x.com&phone=11999999999
+```text
+[Modal] → POST /api/public/lead → Google Sheets (gateway Lovable) → ✓ → redirect Kiwify
 ```
 
-Os IDs que você listou (`fullname`, `email`, `phone`) são os IDs **dos inputs no DOM do checkout**. O Kiwify lê os parâmetros `name`, `email` e `phone` da URL e popula esses campos automaticamente — esse é o comportamento documentado e funciona em todos os links `pay.kiwify.com.br`. Não precisa que o ID do form bata com o nome do parâmetro.
+A página chama um endpoint do próprio backend (`/api/public/lead`). Esse endpoint usa o **conector Google Sheets** do Lovable (que autentica com a SUA conta Google) pra fazer `append` numa aba da planilha. Se a gravação falhar por qualquer motivo, **o redirect pro Kiwify acontece mesmo assim** — a venda nunca trava por causa do Sheets.
 
-⚠️ Se ao testar você ver que o checkout **não** preenche, a causa quase sempre é uma destas duas:
-1. O produto na Kiwify está com "campos personalizados" sobrepondo os padrão → ajustar no painel Kiwify.
-2. O nome do parâmetro mudou (ex.: `full_name` em vez de `name`). Nesse caso eu ajusto o builder da URL — me avise e troco.
+## Passos da implementação
 
-Vou implementar com `name`, `email`, `phone` (padrão atual). Telefone enviado como dígitos só (sem máscara), com DDI 55 prependado se ausente — formato que o Kiwify aceita melhor.
+### 1. Conectar Google Sheets
+Vou disparar o fluxo de conexão (`standard_connectors--connect` com `google_sheets`). Você faz o OAuth com a conta Google que vai ser dona da planilha. Isso linka a conexão ao projeto e injeta as credenciais como variáveis de ambiente no backend.
 
-## Escopo da implementação
+### 2. Você cria a planilha e me passa o ID
+- Crie uma planilha no Drive da conta conectada (qualquer nome, ex: "Summit do Risco — Leads").
+- Na aba `Página1` (ou outro nome de sua escolha), coloque a linha de cabeçalho:
+  ```
+  data | nome | email | telefone | lote | preco | utm_source | utm_medium | utm_campaign | url
+  ```
+- Me envia o **ID da planilha** (parte da URL entre `/d/` e `/edit`) e o **nome da aba**.
 
-### 1. Novo componente `LeadModal`
-`src/components/sections/LeadModal.tsx`
-- Baseado em `@/components/ui/dialog` (já existe no projeto).
-- Visual alinhado à identidade: fundo escuro com sutil glow dourado, borda `border-white/10`, tipografia `font-display`, botão de submit usando o mesmo gradiente dourado do `CtaLink` (sheen no hover).
-- Campos: Nome completo, Email, Telefone (com máscara BR `(99) 99999-9999`).
-- Validação com **zod** (`name` ≥ 2, email válido, telefone com 10–11 dígitos), mensagens de erro abaixo de cada input.
-- Microcopy: título "Falta pouco para garantir sua vaga", subtítulo curto, badge do lote ativo + preço.
-- Estado de loading no botão; após submit válido, redireciona via `window.location.href` para a URL Kiwify com prefill.
+### 3. Captura de UTM no front
+Adicionar `src/lib/utm.ts` que lê `utm_source`, `utm_medium`, `utm_campaign` da URL no primeiro carregamento e persiste em `sessionStorage` (sobrevive a navegação interna, expira ao fechar a aba).
 
-### 2. Provider/contexto global de checkout
-`src/components/sections/CheckoutProvider.tsx`
-- Context com `openCheckout(href: string)` e `closeCheckout()`.
-- Renderiza um único `<LeadModal />` no topo da árvore (montado em `SummitPage`).
-- Guarda o `href` do lote clicado para usar no submit.
+### 4. Modal manda o lote junto
+Atualizar `CheckoutProvider.openCheckout(href, meta)` pra aceitar `{ lote: string, preco: string }`. Cada `CtaLink` passa esses dados (ex: `{ lote: "Lote 2", preco: "R$ 1.997" }`). Hoje o `CtaLink` só tem `href` — vou adicionar props opcionais `lote` e `preco`.
 
-### 3. Substituir os CTAs existentes
-Hoje todo CTA é `<CtaLink href="...">` (anchor que abre Kiwify direto). Vou:
-- Criar `CtaButton` (mesma aparência visual do `CtaLink`, mas `<button>`) que chama `openCheckout(href)`.
-- Trocar **todos os usos** de `CtaLink` por `CtaButton` nas seções: `Hero`, `Pricing` (4 lotes), `Schedule`, `Speakers`, `Testimonials`, `About`, `Includes`, `Audience`, `Faq`, `UrgencyBar`, `Footer` — onde houver.
-- Manter o componente `CtaLink` no repo caso queira reverter; só não será mais usado.
+### 5. Server route `src/routes/api/public/lead.ts`
+- Método `POST`, valida body com Zod (`name`, `email`, `phone`, `lote?`, `preco?`, `utm_*?`, `url?`).
+- Lê `LOVABLE_API_KEY` e `GOOGLE_SHEETS_API_KEY` do `process.env`.
+- Lê `SHEET_ID` e `SHEET_TAB` de `process.env` (vou pedir você adicionar como secrets depois que me passar os valores — assim a planilha não fica hardcoded no repo).
+- Faz `POST` pro gateway:
+  ```
+  https://connector-gateway.lovable.dev/google_sheets/v4/spreadsheets/{SHEET_ID}/values/{SHEET_TAB}!A:J:append?valueInputOption=USER_ENTERED
+  ```
+  com `{ values: [[data, nome, email, telefone, lote, preco, utm_source, utm_medium, utm_campaign, url]] }`.
+- Sempre retorna `{ ok: true }` com status 200, mesmo se o append falhar (loga o erro server-side). Isso garante que o front nunca segura o usuário.
+- Anti-spam básico: rejeita se `email` ou `phone` estiverem vazios/inválidos (já validado, mas reforço no servidor); honeypot opcional (campo invisível no form).
 
-### 4. Construção da URL com prefill
-Helper `src/lib/kiwify.ts`:
-
-```ts
-export function buildKiwifyUrl(base: string, lead: { name: string; email: string; phone: string }) {
-  const url = new URL(base);
-  url.searchParams.set("name", lead.name.trim());
-  url.searchParams.set("email", lead.email.trim().toLowerCase());
-  url.searchParams.set("phone", normalizePhone(lead.phone)); // só dígitos, com 55 na frente
-  return url.toString();
-}
-```
-
-### 5. Persistência leve
-- Salvar `{name, email, phone}` em `localStorage` após submit, para pré-preencher o modal se o usuário voltar e clicar em outro CTA (UX melhor; não pula o modal — só facilita).
-
-## Fora do escopo (confirmar se quer)
-
-- **Captura do lead num backend** (Lovable Cloud / planilha / CRM / webhook). Hoje o lead só vai para o Kiwify junto com a URL. Se quiser armazenar para remarketing antes do pagamento, precisa ativar Lovable Cloud + uma tabela `leads` ou um webhook (ex.: Make/Zapier). Posso adicionar num segundo passo.
-- Pixel/analytics no submit (Meta Pixel, GA4 event). Avise se quer disparar evento `Lead` antes do redirect.
+### 6. Front dispara antes do redirect
+Em `CheckoutProvider.onSubmit`:
+1. `await fetch('/api/public/lead', { method: 'POST', body: JSON.stringify({...lead, lote, preco, ...utms, url}) })` com timeout de 3s (usando `AbortController`).
+2. Independente do resultado (sucesso, erro, timeout), salva localStorage e faz `window.location.href = buildKiwifyUrl(...)`.
 
 ## Detalhes técnicos
 
-- Stack: shadcn `Dialog`, `react-hook-form` + `zod` (já no `package.json`? confirmo no build; se não tiver, instalo `react-hook-form` `@hookform/resolvers` `zod`).
-- Acessibilidade: foco vai para o primeiro input ao abrir; `Esc` fecha; labels associados.
-- Mobile: modal full-width com padding generoso, scroll interno se necessário.
+- Endpoint público (`/api/public/*`) bypassa a auth do Lovable na URL publicada, certo pra um form anônimo. Não retorna PII; só `{ ok: true }`.
+- Gateway `google_sheets` usa OAuth da sua conta — token é refreshed automaticamente pelo Lovable. Você nunca precisa renovar nada.
+- `valueInputOption=USER_ENTERED` faz o Sheets parsear datas/números como se você tivesse digitado (útil pra coluna de data ficar clicável).
+- Telefone vai pra planilha **com máscara** (`(11) 99999-9999`) pra leitura humana; o que vai pro Kiwify continua só dígitos com 55 prependado.
+- Data salva em ISO no fuso `America/Sao_Paulo` (formatada antes de mandar).
 
-## Pergunta antes de implementar
+## Fora do escopo (avise se quiser)
 
-Quer que eu **também** salve o lead em algum lugar antes de mandar para o Kiwify (Lovable Cloud, webhook, planilha)? Ou por enquanto só passar adiante via URL e seguimos só com isso?
+- Deduplicação por e-mail (hoje cada submit vira uma linha nova — bom pra acompanhar tentativas).
+- Notificação por e-mail/WhatsApp pra você quando um lead entra.
+- Integração paralela com CRM (HubSpot, RD Station).
+- Pixel Meta/GA4 disparando evento `Lead` antes do redirect.
+
+## O que preciso de você antes de começar
+
+1. Confirmar que posso disparar o fluxo de conexão do Google Sheets agora.
+2. Depois da conexão, criar a planilha com o cabeçalho acima e me passar o **ID da planilha** + **nome da aba**.
