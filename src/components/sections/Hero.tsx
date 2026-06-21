@@ -1,7 +1,9 @@
 import { Check, Mountain } from "lucide-react";
 import { BlurFade } from "@/components/magicui/blur-fade";
 import { CtaLink } from "./CtaLink";
-import { EVENT, PHOTOS, LEARN } from "@/data/summit";
+import { EVENT, PHOTOS, LEARN, LOTES } from "@/data/summit";
+
+const ACTIVE = LOTES.find((l) => l.status === "active") ?? LOTES[0];
 
 export function Hero() {
   return (
@@ -96,8 +98,8 @@ export function Hero() {
           {/* CTA */}
           <BlurFade delay={0.34}>
             <div className="pt-1">
-              <CtaLink href={EVENT.checkout}>
-                Garantir minha vaga por R$29
+              <CtaLink href={EVENT.checkout} lote={ACTIVE.name} preco={`R$${ACTIVE.price}`}>
+                Garantir minha vaga por R${ACTIVE.price}
               </CtaLink>
             </div>
           </BlurFade>
