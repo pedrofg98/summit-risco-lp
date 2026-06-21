@@ -1,19 +1,21 @@
 ## O que será feito
 
-Substituir a imagem de fundo da seção Hero no **desktop** pela nova versão enviada (`bg_fundo_desktop_v2.webp`), sem alterar nada no mobile.
+Substituir as 6 imagens de depoimentos atuais pelas 6 novas enviadas, mantendo a mesma estrutura de exibição (grid masonry com modal de zoom).
 
 ## Arquivos alterados
 
-### 1. Novo asset pointer
-- Criar `src/assets/bg-fundo-desktop-v2.webp.asset.json` a partir do upload da imagem enviada via `lovable-assets`.
+### 1. Novos asset pointers (via `lovable-assets`)
+Subir as 6 imagens enviadas para o CDN e gerar os pointers em `src/assets/`:
+- `depoimento-1.webp.asset.json` ← `Group_21x.webp` (Carla — pontos focais)
+- `depoimento-2.webp.asset.json` ← `Group_31x.webp` (Ana Franco / Jader)
+- `depoimento-3.webp.asset.json` ← `Group_41x.webp` (AnaCarolina — GPT)
+- `depoimento-4.webp.asset.json` ← `Group_51x.webp` (Raquel Lima)
+- `depoimento-5.webp.asset.json` ← `Group_61x.webp` (Carla — grupo focal)
+- `depoimento-6.webp.asset.json` ← `WhatsApp_Image_2026-06-15_at_23.29.22_1_11x-2.webp` (Milena)
 
-### 2. `src/components/sections/Hero.tsx`
-- Importar o novo asset `bgFundoDesktopV2`.
-- No bloco de imagem de fundo desktop (`hidden lg:block`), trocar `src={bgFundoDesktop.url}` por `src={bgFundoDesktopV2.url}`.
-- Manter o posicionamento `object-top` e o gradiente inferior existentes.
-- **Não alterar** nenhum estilo ou conteúdo relacionado ao mobile.
+Os arquivos `.asset.json` existentes serão sobrescritos (`--overwrite`), mantendo os mesmos imports em `src/data/summit.ts` — nenhuma mudança de código necessária.
 
 ## O que NÃO será alterado
-- Layout mobile da Hero.
+- `src/data/summit.ts` (imports continuam iguais).
+- `src/components/sections/Testimonials.tsx`.
 - Qualquer outra seção da página.
-- O asset antigo (`bg-fundo-desktop.webp.asset.json`) pode ser mantido ou removido — a decisão fica a critério do usuário após aprovação.
