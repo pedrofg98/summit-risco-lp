@@ -210,35 +210,42 @@ export type Lote = {
   price: string;
   period: string;
   link: string;
-  status: "active" | "next" | "soon";
+  status: "active" | "next" | "soon" | "sold";
 };
 
 export const LOTES: Lote[] = [
   {
-    name: "Lote 0 · Pré-lançamento",
-    price: "29",
-    period: "22/06 a 06/07",
+    name: "Lote 0",
+    price: "27",
+    period: "",
     link: "https://pay.kiwify.com.br/q6yZ91A",
-    status: "active",
+    status: "sold",
   },
   {
     name: "Lote 1",
-    price: "49",
-    period: "07/07 a 20/07",
+    price: "37",
+    period: "",
     link: "https://pay.kiwify.com.br/U96pbFV",
-    status: "next",
+    status: "active",
   },
   {
     name: "Lote 2",
-    price: "79",
-    period: "21/07 a 27/07",
+    price: "47",
+    period: "",
     link: "https://pay.kiwify.com.br/sNHxiAL",
-    status: "soon",
+    status: "next",
   },
   {
     name: "Lote 3",
-    price: "99",
-    period: "28/07 a 07/08",
+    price: "57",
+    period: "",
+    link: "https://pay.kiwify.com.br/jNsOq3X",
+    status: "soon",
+  },
+  {
+    name: "Lote 4",
+    price: "67",
+    period: "",
     link: "https://pay.kiwify.com.br/jNsOq3X",
     status: "soon",
   },
