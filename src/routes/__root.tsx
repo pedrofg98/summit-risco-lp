@@ -77,14 +77,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
+      { title: "Summit R.I.S.C.O. 2026" },
+      { name: "description", content: "Um encontro para reunir profissionais que entendem que a NR1 exige método, critério e decisões organizacionais responsáveis." },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { property: "og:title", content: "Summit R.I.S.C.O. 2026" },
+      { property: "og:description", content: "Um encontro para reunir profissionais que entendem que a NR1 exige método, critério e decisões organizacionais responsáveis." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "Summit R.I.S.C.O. 2026" },
+      { name: "twitter:description", content: "Um encontro para reunir profissionais que entendem que a NR1 exige método, critério e decisões organizacionais responsáveis." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/15889cd9-139c-4adb-a73d-e677282d76e2/id-preview-7d20f17b--d63865fc-e550-46c2-864f-b6639e011f70.lovable.app-1782035703961.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/15889cd9-139c-4adb-a73d-e677282d76e2/id-preview-7d20f17b--d63865fc-e550-46c2-864f-b6639e011f70.lovable.app-1782035703961.png" },
     ],
     links: [
       {
