@@ -1,8 +1,10 @@
-Remover o comportamento de link da barra de urgência (UrgencyBar) no topo da página.
+Remover a exibição das datas (período) dos lotes na seção de ingressos.
 
 ## O que será feito
-- No arquivo `src/components/sections/UrgencyBar.tsx`, substituir a tag `<a>` por `<div>`, removendo os atributos `href`, `target` e `rel`.
-- Preservar todos os estilos visuais (gradiente, animação de brilho, texto, ícone Flame).
+
+- `src/components/sections/Pricing.tsx` — remover o `<span>` que renderiza `{l.period}` em cada card de lote.
+- `src/data/summit.ts` — manter o campo `period` no tipo/dados por enquanto (não é referenciado em nenhum outro componente), apenas deixa de ser exibido. Se preferir limpeza total, posso remover o campo também.
 
 ## Resultado esperado
-A barra superior continua visível e com a mesma aparência, mas não é mais clicável.
+
+Cada card de lote continua mostrando o badge "Lote atual", o nome ("LOTE 0", "LOTE 1", ...) e o preço, sem nenhuma data abaixo.

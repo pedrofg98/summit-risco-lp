@@ -68,14 +68,6 @@ export function Pricing() {
                     >
                       R${l.price}
                     </span>
-                    <span
-                      className={cn(
-                        "text-[0.65rem]",
-                        isActive ? "text-white/70" : "text-muted-foreground/60"
-                      )}
-                    >
-                      {l.period}
-                    </span>
                   </div>
                 );
               })}
