@@ -1,20 +1,20 @@
-## Objetivo
-Exibir a foto de cada palestrante no card do componente `Speakers`, usando os 8 arquivos enviados.
+## O que será feito
 
-## Mapeamento (nome do arquivo → palestrante)
-- `ÁUREA 11x.webp` → Áurea Santos
-- `MILENA 11x.webp` → Milena Mendonça
-- `LEO 11x.webp` → Léo Kaufmann
-- `Felipe 11x.webp` → Felipe dos Anjos
-- `Raphael 11x.webp` → Rapha Rezende
-- `Ricardo 11x.webp` → Ricardo Queiroz
-- `PABLO 11x.webp` → Pablo Funchal
-- `DSC09499 11x.webp` → Silpresumi-se que seja **Silvino Santos** (única foto sem nome explícito; restante dos 8 palestrantes já está coberto). Se for outra pessoa, me avise antes que eu suba.
+Adicionar os campos `utm_content` e `utm_term` ao fluxo completo de captura, armazenamento e envio de UTMs para a planilha Google Sheets de leads.
 
-## Passos
-1. Subir cada `.webp` via `lovable-assets` e salvar pointers em `src/assets/speakers/<slug>.webp.asset.json` (slugs: `aurea`, `milena`, `leo`, `felipe`, `raphael`, `ricardo`, `pablo`, `silvino`).
-2. Em `src/data/summit.ts`: adicionar campo opcional `photo?: string` em `Speaker`, importar os 8 pointers e preencher cada item de `SPEAKERS` com o `photo` correspondente.
-3. Em `src/components/sections/Speakers.tsx`: substituir o bloco de iniciais pelo `<img src={s.photo}>` quando existir; manter fallback com iniciais se faltar foto. Remover o caso especial só-do-Silvino (que usava `PHOTOS[3]`) — agora todo speaker usa o mesmo padrão. Manter o badge "Idealizador" para o Silvino. Remover a nota "* Fotos serão adicionadas em breve."
+## Arquivos alterados
 
-## Observação
-Confirma só se `DSC09499 11x.webp` é mesmo o **Silvino Santos**? Se sim, sigo direto na build mode.
+### 1. `src/lib/utm.ts`
+- Adicionar `utm_content?: string` e `utm_term?: string` ao tipo `Utms`.
+- Incluir os dois novos campos no array `FIELDS`, para que também sejam capturados da URL e persistidos no `sessionStorage`.
+
+### 2. `src/routes/api/public/lead.ts`
+- Adicionar `utm_content` e `utm_term` ao schema Zod (`leadSchema`).
+- Incluir os dois campos na row enviada para a planilha.
+- Expandir o range da planilha de `A:J` para `A:L` (2 colunas a mais).
+
+### 3. `src/components/sections/CheckoutProvider.tsx`
+- Adicionar `utm_content` e `utm_term` ao payload do `postLead`, lendo de `getStoredUtms()`.
+
+## Nota
+É necessário adicionar manualmente os cabeçalhos das novas colunas (`utm_content`, `utm_term`) na planilha Google Sheets, na mesma ordem em que aparecem na row.

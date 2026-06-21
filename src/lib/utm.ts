@@ -2,10 +2,18 @@ export type Utms = {
   utm_source?: string;
   utm_medium?: string;
   utm_campaign?: string;
+  utm_content?: string;
+  utm_term?: string;
 };
 
 const KEY = "summit_utms_v1";
-const FIELDS: (keyof Utms)[] = ["utm_source", "utm_medium", "utm_campaign"];
+const FIELDS: (keyof Utms)[] = [
+  "utm_source",
+  "utm_medium",
+  "utm_campaign",
+  "utm_content",
+  "utm_term",
+];
 
 /** Lê UTMs da URL atual e persiste em sessionStorage (chamado uma vez no boot). */
 export function captureUtmsFromUrl(): void {

@@ -14,6 +14,8 @@ const leadSchema = z.object({
   utm_source: z.string().trim().max(120).optional().default(""),
   utm_medium: z.string().trim().max(120).optional().default(""),
   utm_campaign: z.string().trim().max(120).optional().default(""),
+  utm_content: z.string().trim().max(120).optional().default(""),
+  utm_term: z.string().trim().max(120).optional().default(""),
   url: z.string().trim().max(500).optional().default(""),
 });
 
@@ -39,7 +41,7 @@ async function appendToSheet(values: string[]): Promise<void> {
     return;
   }
   const url =
-    `${GATEWAY}/spreadsheets/${SHEET_ID}/values/${SHEET_TAB}!A:J:append` +
+    `${GATEWAY}/spreadsheets/${SHEET_ID}/values/${SHEET_TAB}!A:L:append` +
     `?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`;
   const res = await fetch(url, {
     method: "POST",
@@ -77,6 +79,8 @@ export const Route = createFileRoute("/api/public/lead")({
             d.utm_source,
             d.utm_medium,
             d.utm_campaign,
+            d.utm_content,
+            d.utm_term,
             d.url,
           ];
           await appendToSheet(row);
