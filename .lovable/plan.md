@@ -1,24 +1,19 @@
-## Diagnóstico
+## Plano
 
-Calma — **isso é local só no seu navegador**. Nenhum outro lead vê seus dados.
+Substituir os depoimentos atuais pelos 6 prints enviados, em uma galeria masonry (que se adapta à altura de cada print) com abertura em lightbox ao clicar.
 
-O que está acontecendo: quando você submeteu o formulário a primeira vez, o código salvou `{nome, email, telefone}` no `localStorage` do **seu** navegador (chave `summit_lead_v1`), em `src/lib/kiwify.ts → saveStoredLead()`. Da próxima vez que o modal abre, o `loadStoredLead()` lê dessa chave e pré-preenche os campos. `localStorage` é por dispositivo + navegador — outro visitante abre com tudo vazio.
+### Passos
 
-Você pode confirmar abrindo no anônimo / outro navegador: vai estar em branco.
+1. **Subir as 6 imagens** via `lovable-assets` a partir de `/mnt/user-uploads/`, gerando 6 arquivos `src/assets/depoimento-N.webp.asset.json`.
+2. **Atualizar `src/data/summit.ts`**: substituir o array `TESTIMONIALS` pelas 6 novas URLs (importadas dos JSONs gerados). Remover as antigas.
+3. **Reescrever `src/components/sections/Testimonials.tsx`**:
+   - Trocar o marquee duplo por uma galeria **masonry** usando CSS columns (`columns-1 sm:columns-2 lg:columns-3`, `gap-5`), com cada item `break-inside-avoid mb-5`. Isso adapta automaticamente à altura de cada depoimento.
+   - Cada card vira um `<button>` que ao clicar abre um **lightbox em tela cheia**.
+   - Lightbox: overlay fixo (`fixed inset-0 bg-black/90 backdrop-blur-sm z-50`), imagem centralizada com `max-h-[95vh] max-w-[95vw] object-contain`, botão de fechar (X) no canto, fecha em ESC, clique fora ou no botão. Usar estado local `useState<string | null>(selected)`.
+   - Manter a `SectionHeading` atual (eyebrow, título, subtítulo).
+   - Remover imports não usados (`Marquee`).
 
-## O que mudar
-
-A pergunta é: você **quer** o pré-preenchimento ou prefere sempre vazio?
-
-**Opção A — manter pré-preenchimento (recomendado)**
-Útil pra quem clica num CTA, fecha o modal sem comprar, e volta depois — não precisa redigitar. Mantém como está. Você só limpa o seu localStorage uma vez (DevTools → Application → Local Storage → apagar `summit_lead_v1`) e pronto.
-
-**Opção B — sempre abrir vazio**
-Remover o `loadStoredLead()` do `openCheckout` em `CheckoutProvider.tsx` e parar de chamar `saveStoredLead()` no submit. O modal sempre vem em branco, mesmo pra quem já preencheu antes.
-
-**Opção C — meio termo: lembrar só na mesma sessão**
-Trocar `localStorage` por `sessionStorage` em `kiwify.ts`. Persiste enquanto a aba estiver aberta; ao fechar, limpa. Bom equilíbrio entre conveniência e "começar limpo" em visitas novas.
-
-## Pergunta
-
-Qual opção quer? **A (manter), B (sempre vazio) ou C (só na sessão)?**
+### Detalhes técnicos
+- Lightbox sem dependência externa, apenas React + Tailwind + ícone `X` do `lucide-react`.
+- `loading="lazy"` nos thumbnails; imagem do lightbox sem lazy.
+- Acessibilidade: `aria-label` no botão, `role="dialog"`, fechar com tecla Escape via `useEffect`.

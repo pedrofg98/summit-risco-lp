@@ -287,14 +287,18 @@ export const PHOTOS = [
   "/fotos/_MG_2149-Editar.webp",
 ];
 
+import depoimento1 from "@/assets/depoimento-1.webp.asset.json";
+import depoimento2 from "@/assets/depoimento-2.webp.asset.json";
+import depoimento3 from "@/assets/depoimento-3.webp.asset.json";
+import depoimento4 from "@/assets/depoimento-4.webp.asset.json";
+import depoimento5 from "@/assets/depoimento-5.webp.asset.json";
+import depoimento6 from "@/assets/depoimento-6.webp.asset.json";
+
 export const TESTIMONIALS = [
-  "/depoimentos/Frame 11x.webp",
-  "/depoimentos/Frame 21x.webp",
-  "/depoimentos/Frame 31x.webp",
-  "/depoimentos/Frame 41x.webp",
-  "/depoimentos/Frame 51x.webp",
-  "/depoimentos/Frame 61x.webp",
-  "/depoimentos/Frame 71x.webp",
-  "/depoimentos/Frame 81x.webp",
-  "/depoimentos/Frame 91x.webp",
+  depoimento1.url,
+  depoimento2.url,
+  depoimento3.url,
+  depoimento4.url,
+  depoimento5.url,
+  depoimento6.url,
 ];

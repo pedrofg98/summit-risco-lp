@@ -1,12 +1,24 @@
+import { useEffect, useState } from "react";
+import { X } from "lucide-react";
 import { BlurFade } from "@/components/magicui/blur-fade";
-import { Marquee } from "@/components/magicui/marquee";
 import { SectionHeading } from "./SectionHeading";
 import { TESTIMONIALS } from "@/data/summit";
 
 export function Testimonials() {
-  const half = Math.ceil(TESTIMONIALS.length / 2);
-  const rowA = TESTIMONIALS.slice(0, half);
-  const rowB = TESTIMONIALS.slice(half);
+  const [selected, setSelected] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!selected) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setSelected(null);
+    };
+    window.addEventListener("keydown", onKey);
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = "";
+    };
+  }, [selected]);
 
   return (
     <section className="relative overflow-hidden py-20 md:py-28">
@@ -21,36 +33,52 @@ export function Testimonials() {
           }
           subtitle="Profissionais que decidiram sair da insegurança e passaram a atuar com método, clareza e segurança diante da NR1."
         />
+
+        <BlurFade>
+          <div className="columns-1 gap-5 sm:columns-2 lg:columns-3">
+            {TESTIMONIALS.map((src, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => setSelected(src)}
+                className="mb-5 block w-full overflow-hidden rounded-2xl border border-border bg-card transition-all hover:border-gold/50 hover:shadow-lg break-inside-avoid"
+                aria-label="Abrir depoimento em tela cheia"
+              >
+                <img
+                  src={src}
+                  alt="Depoimento de aluno do Método R.I.S.C.O."
+                  className="h-auto w-full"
+                  loading="lazy"
+                />
+              </button>
+            ))}
+          </div>
+        </BlurFade>
       </div>
 
-      <BlurFade className="relative mt-4 flex flex-col gap-5">
-        <Marquee pauseOnHover duration="60s" className="[--gap:1.25rem]">
-          {rowA.map((src, i) => (
-            <Card key={i} src={src} />
-          ))}
-        </Marquee>
-        <Marquee reverse pauseOnHover duration="60s" className="[--gap:1.25rem]">
-          {rowB.map((src, i) => (
-            <Card key={i} src={src} />
-          ))}
-        </Marquee>
-        {/* fades laterais */}
-        <div className="pointer-events-none absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-background to-transparent" />
-        <div className="pointer-events-none absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-background to-transparent" />
-      </BlurFade>
+      {selected && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          onClick={() => setSelected(null)}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 backdrop-blur-sm animate-in fade-in"
+        >
+          <button
+            type="button"
+            onClick={() => setSelected(null)}
+            aria-label="Fechar"
+            className="absolute right-4 top-4 rounded-full bg-white/10 p-2 text-white transition-colors hover:bg-white/20"
+          >
+            <X size={24} />
+          </button>
+          <img
+            src={selected}
+            alt="Depoimento ampliado"
+            onClick={(e) => e.stopPropagation()}
+            className="max-h-[95vh] max-w-[95vw] rounded-xl object-contain shadow-2xl"
+          />
+        </div>
+      )}
     </section>
-  );
-}
-
-function Card({ src }: { src: string }) {
-  return (
-    <div className="w-[280px] overflow-hidden rounded-2xl border border-border bg-card transition-colors hover:border-gold/35 sm:w-[330px]">
-      <img
-        src={src}
-        alt="Depoimento de aluno do Método R.I.S.C.O."
-        className="h-full w-full object-cover"
-        loading="lazy"
-      />
-    </div>
   );
 }
