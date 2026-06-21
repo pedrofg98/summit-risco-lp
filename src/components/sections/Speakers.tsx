@@ -75,9 +75,6 @@ export function Speakers() {
           })}
         </div>
 
-        <p className="text-center text-xs text-muted-foreground">
-          * Fotos dos palestrantes serão adicionadas em breve.
-        </p>
       </div>
     </section>
   );
