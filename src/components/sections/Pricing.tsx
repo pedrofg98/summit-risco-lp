@@ -29,45 +29,50 @@ export function Pricing() {
 
         {/* barra de lotes lado a lado */}
         <BlurFade>
-          <div className="mx-auto w-full max-w-4xl overflow-hidden rounded-2xl border border-gold/25 bg-card/70 gold-ring">
-            <div className="grid grid-cols-2 sm:grid-cols-4">
+          <div className="mx-auto w-full max-w-5xl overflow-hidden rounded-2xl border border-gold/25 bg-card/70 gold-ring">
+            <div className="grid grid-cols-5">
               {LOTES.map((l, i) => {
                 const isActive = l.status === "active";
+                const isSold = l.status === "sold";
                 return (
                   <div
                     key={l.name}
                     className={cn(
-                      "flex flex-col items-center gap-1.5 px-4 pb-7 pt-5 text-center",
-                      // divisórias
-                      i % 2 === 1 && "border-l border-border",
-                      "sm:border-l sm:first:border-l-0",
-                      i >= 2 && "border-t border-border sm:border-t-0",
-                      isActive && "bg-gold/[0.08]"
+                      "flex flex-col items-center gap-2 px-3 py-6 text-center",
+                      i > 0 && "border-l border-border",
                     )}
                   >
-                    <div className="flex h-5 items-center justify-center">
-                      {isActive && (
-                        <span className="rounded-full bg-gold px-2.5 py-0.5 text-[0.6rem] font-bold uppercase tracking-wide text-gold-ink">
-                          Lote atual
+                    <span
+                      className={cn(
+                        "text-[0.75rem] font-semibold uppercase tracking-[0.16em] md:text-sm",
+                        isActive
+                          ? "text-white"
+                          : isSold
+                          ? "text-white"
+                          : "text-white/35",
+                      )}
+                    >
+                      {l.name}
+                    </span>
+                    <div className="relative">
+                      <span
+                        className={cn(
+                          "font-display text-2xl font-black md:text-4xl",
+                          isActive
+                            ? "text-[var(--color-lime-active)]"
+                            : isSold
+                            ? "text-white/40 line-through decoration-2"
+                            : "text-white/35",
+                        )}
+                      >
+                        R${l.price}
+                      </span>
+                      {isSold && (
+                        <span className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 -rotate-6 rounded-sm bg-red-600 px-3 py-0.5 text-[0.6rem] font-extrabold uppercase tracking-widest text-white shadow-md md:text-xs">
+                          Esgotado
                         </span>
                       )}
                     </div>
-                    <span
-                      className={cn(
-                        "text-[0.7rem] font-semibold uppercase tracking-[0.16em]",
-                        isActive ? "text-gold" : "text-muted-foreground"
-                      )}
-                    >
-                      {l.name.replace(" · Pré-lançamento", "")}
-                    </span>
-                    <span
-                      className={cn(
-                        "font-display text-3xl font-black md:text-4xl",
-                        isActive ? "text-gold" : "text-white/35"
-                      )}
-                    >
-                      R${l.price}
-                    </span>
                   </div>
                 );
               })}
@@ -79,9 +84,7 @@ export function Pricing() {
         <BlurFade delay={0.1}>
           <div className="mx-auto flex max-w-md flex-col items-center gap-5 text-center">
             <p className="text-balance text-sm text-muted-foreground">
-              É <span className="font-semibold text-white">online e ao vivo</span>.
-              Garanta sua vaga no <span className="text-gold">menor valor</span> antes
-              do próximo lote.
+              Não tem gravação. Ou você entra ao vivo, ou perde.
             </p>
             <CtaLink href={active.link} size="lg" lote={active.name} preco={`R$${active.price}`}>
               Garantir minha vaga por R${active.price}
