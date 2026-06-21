@@ -31,7 +31,7 @@ const STORAGE_KEY = "summit_lead_v1";
 export function loadStoredLead(): Partial<Lead> | null {
   if (typeof window === "undefined") return null;
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
+    const raw = window.sessionStorage.getItem(STORAGE_KEY);
     return raw ? (JSON.parse(raw) as Partial<Lead>) : null;
   } catch {
     return null;
@@ -41,7 +41,7 @@ export function loadStoredLead(): Partial<Lead> | null {
 export function saveStoredLead(lead: Lead): void {
   if (typeof window === "undefined") return;
   try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(lead));
+    window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(lead));
   } catch {
     // ignore
   }
