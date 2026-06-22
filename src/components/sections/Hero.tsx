@@ -36,7 +36,7 @@ export function Hero() {
       <div className="absolute inset-0 bg-grid-faint opacity-30" />
       <div className="absolute -left-40 -top-20 h-[520px] w-[520px] rounded-full bg-gold/10 blur-[130px]" />
 
-      <div className="shell relative z-10 grid items-center gap-10 py-14 md:py-16 lg:min-h-[92vh] lg:grid-cols-2">
+      <div className="shell relative z-10 grid items-center gap-10 py-14 pb-[360px] md:py-16 lg:min-h-[92vh] lg:grid-cols-2 lg:pb-14">
         <div className="flex max-w-2xl flex-col gap-7">
           {/* logo + data */}
           <BlurFade delay={0.05}>
