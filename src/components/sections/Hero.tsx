@@ -3,6 +3,7 @@ import { BlurFade } from "@/components/magicui/blur-fade";
 import { CtaLink } from "./CtaLink";
 import { EVENT, LEARN, getActiveLote } from "@/data/summit";
 import bgFundoDesktop from "@/assets/bg-fundo-desktop-v2.webp.asset.json";
+import bgFundoMobile from "@/assets/bg-fundo-hero-mobile.webp.asset.json";
 
 const ACTIVE = getActiveLote();
 
