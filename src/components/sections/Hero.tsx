@@ -3,6 +3,7 @@ import { BlurFade } from "@/components/magicui/blur-fade";
 import { CtaLink } from "./CtaLink";
 import { EVENT, LEARN, getActiveLote } from "@/data/summit";
 import bgFundoDesktop from "@/assets/bg-fundo-desktop-v2.webp.asset.json";
+import bgFundoMobile from "@/assets/bg-fundo-hero-mobile.webp.asset.json";
 
 const ACTIVE = getActiveLote();
 
@@ -18,6 +19,17 @@ export function Hero() {
           loading="eager"
         />
         <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-background to-transparent" />
+      </div>
+
+      {/* fundo mobile */}
+      <div className="pointer-events-none absolute inset-0 lg:hidden">
+        <img
+          src={bgFundoMobile.url}
+          alt=""
+          aria-hidden
+          className="h-full w-full object-cover object-bottom"
+          loading="eager"
+        />
       </div>
 
       {/* ambiência */}
