@@ -1,21 +1,32 @@
 ## Objetivo
-Instalar o Meta Pixel (ID `2279862262756903`) em todo o site, disparando `PageView` no carregamento inicial.
+Criar uma rota `/v2` duplicando a página principal, com uma variante do Hero que usa `bg_fundo_mobile_v2.webp` como fundo mobile e move o padding de baixo para cima (para a imagem dos palestrantes aparecer primeiro, empurrando o conteúdo do hero para baixo).
 
 ## Alterações
 
-**`src/routes/__root.tsx`** — adicionar o pixel ao `head()` da rota raiz para que carregue em todas as páginas:
+### 1. Upload do asset
+- `lovable-assets create --file /mnt/user-uploads/bg_fundo_mobile_v2.webp` → grava `src/assets/bg-fundo-mobile-v2.webp.asset.json`.
 
-1. Em `meta`, adicionar o script inline do Pixel:
-   ```ts
-   {
-     children: `!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','2279862262756903');fbq('track','PageView');`
-   }
-   ```
-   (Usando `scripts` no head do TanStack Start.)
+### 2. Novo Hero variante: `src/components/sections/HeroV2.tsx`
+Cópia de `Hero.tsx` com duas diferenças:
+- Importa `bg-fundo-mobile-v2.webp.asset.json` em vez de `bg-fundo-hero-mobile.webp.asset.json`.
+- No `shell`: trocar `py-14 pb-[360px] md:py-16 ... lg:pb-14` por `pt-[360px] pb-14 md:py-16 ... lg:pt-14`. No mobile, o `pt-[360px]` empurra o conteúdo para baixo (revelando a imagem com os palestrantes no topo); no desktop volta ao padrão.
 
-2. O `<noscript><img/></noscript>` fallback **não** vai no `<head>` (regra do TanStack: `<noscript>` com `<img>` no head quebra o parser). Em vez disso, renderizá-lo dentro do `<body>` no `RootShell`, logo após `{children}`.
+### 3. Nova página: `src/components/SummitPageV2.tsx`
+Cópia de `SummitPage.tsx` trocando apenas `Hero` por `HeroV2`. Mantém todas as outras seções idênticas.
+
+### 4. Nova rota: `src/routes/v2.tsx`
+```tsx
+import { createFileRoute } from "@tanstack/react-router";
+import SummitPageV2 from "@/components/SummitPageV2";
+
+export const Route = createFileRoute("/v2")({
+  head: () => ({ meta: [ /* mesmo conteúdo do index */ ] }),
+  component: SummitPageV2,
+});
+```
+O plugin do TanStack regenera `routeTree.gen.ts` automaticamente.
 
 ## Resultado
-- Pixel carrega em todas as rotas (root head é global).
-- `PageView` dispara no load inicial conforme solicitado (sem hook adicional para mudanças de rota SPA).
-- Fallback `<noscript>` posicionado corretamente no body.
+- `/` continua igual (imagem mobile atual, padding em baixo).
+- `/v2` usa a nova imagem mobile e o conteúdo do hero aparece abaixo da imagem dos palestrantes.
+- Desktop em ambas as rotas permanece inalterado.
