@@ -1,21 +1,21 @@
-## O que será feito
+## Objetivo
+Instalar o Meta Pixel (ID `2279862262756903`) em todo o site, disparando `PageView` no carregamento inicial.
 
-Inserir a imagem enviada (`bg_fundo_hero_mobile.webp`) como fundo da seção Hero **apenas no mobile**, sem efeitos adicionais por cima. O fundo desktop permanece inalterado.
+## Alterações
 
-## Detalhe técnico
+**`src/routes/__root.tsx`** — adicionar o pixel ao `head()` da rota raiz para que carregue em todas as páginas:
 
-1. **Upload da imagem mobile para o CDN** via `lovable-assets`, gerando o arquivo ponteiro `src/assets/bg-fundo-hero-mobile.webp.asset.json`.
-2. **Importar o asset** em `src/components/sections/Hero.tsx`.
-3. **Adicionar uma nova camada de fundo** posicionada de forma absoluta, visível apenas no mobile (`lg:hidden`) e com `pointer-events-none`.
-4. **Manter a camada desktop existente** (`hidden lg:block`) exatamente como está, sem alterações.
-5. **Não aplicar gradiente, overlay ou fade** sobre a imagem mobile, conforme solicitado.
+1. Em `meta`, adicionar o script inline do Pixel:
+   ```ts
+   {
+     children: `!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','2279862262756903');fbq('track','PageView');`
+   }
+   ```
+   (Usando `scripts` no head do TanStack Start.)
 
-## O que NÃO será alterado
+2. O `<noscript><img/></noscript>` fallback **não** vai no `<head>` (regra do TanStack: `<noscript>` com `<img>` no head quebra o parser). Em vez disso, renderizá-lo dentro do `<body>` no `RootShell`, logo após `{children}`.
 
-- A imagem de fundo do desktop (`bg-fundo-desktop-v2.webp`) continua igual.
-- Layout, tipografia, cores e conteúdo do Hero permanecem os mesmos.
-- Nenhum efeito visual extra será adicionado sobre a nova imagem mobile.
-
-## Resultado esperado
-
-No mobile, a primeira seção exibirá a imagem dos palestrantes como plano de fundo. No desktop, continuará com a imagem de fundo atual.
+## Resultado
+- Pixel carrega em todas as rotas (root head é global).
+- `PageView` dispara no load inicial conforme solicitado (sem hook adicional para mudanças de rota SPA).
+- Fallback `<noscript>` posicionado corretamente no body.
