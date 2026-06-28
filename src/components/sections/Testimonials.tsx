@@ -2,7 +2,10 @@ import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { BlurFade } from "@/components/magicui/blur-fade";
 import { SectionHeading } from "./SectionHeading";
-import { TESTIMONIALS } from "@/data/summit";
+import { CtaLink } from "./CtaLink";
+import { EVENT, TESTIMONIALS, getActiveLote } from "@/data/summit";
+
+const ACTIVE = getActiveLote();
 
 export function Testimonials() {
   const [selected, setSelected] = useState<string | null>(null);
