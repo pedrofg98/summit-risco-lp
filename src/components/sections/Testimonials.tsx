@@ -2,7 +2,10 @@ import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { BlurFade } from "@/components/magicui/blur-fade";
 import { SectionHeading } from "./SectionHeading";
-import { TESTIMONIALS } from "@/data/summit";
+import { CtaLink } from "./CtaLink";
+import { EVENT, TESTIMONIALS, getActiveLote } from "@/data/summit";
+
+const ACTIVE = getActiveLote();
 
 export function Testimonials() {
   const [selected, setSelected] = useState<string | null>(null);
@@ -52,6 +55,14 @@ export function Testimonials() {
                 />
               </button>
             ))}
+          </div>
+        </BlurFade>
+
+        <BlurFade>
+          <div className="flex justify-center pt-2">
+            <CtaLink href={EVENT.checkout} lote={ACTIVE.name} preco={`R$${ACTIVE.price}`}>
+              Garantir minha vaga por R${ACTIVE.price}
+            </CtaLink>
           </div>
         </BlurFade>
       </div>

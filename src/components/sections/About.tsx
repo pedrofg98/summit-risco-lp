@@ -1,7 +1,10 @@
 import { Quote } from "lucide-react";
 import { BlurFade } from "@/components/magicui/blur-fade";
 import { SectionHeading } from "./SectionHeading";
-import { PHOTOS } from "@/data/summit";
+import { CtaLink } from "./CtaLink";
+import { EVENT, PHOTOS, getActiveLote } from "@/data/summit";
+
+const ACTIVE = getActiveLote();
 
 const TOPICS = [
   "Saúde mental",
@@ -79,6 +82,14 @@ export function About() {
             </div>
           </BlurFade>
         </div>
+
+        <BlurFade>
+          <div className="flex justify-center pt-2">
+            <CtaLink href={EVENT.checkout} lote={ACTIVE.name} preco={`R$${ACTIVE.price}`}>
+              Garantir minha vaga por R${ACTIVE.price}
+            </CtaLink>
+          </div>
+        </BlurFade>
       </div>
     </section>
   );

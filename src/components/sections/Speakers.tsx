@@ -1,7 +1,10 @@
 import { BlurFade } from "@/components/magicui/blur-fade";
 import { MagicCard } from "@/components/magicui/magic-card";
 import { SectionHeading } from "./SectionHeading";
-import { SPEAKERS } from "@/data/summit";
+import { CtaLink } from "./CtaLink";
+import { EVENT, SPEAKERS, getActiveLote } from "@/data/summit";
+
+const ACTIVE = getActiveLote();
 
 function initials(name: string) {
   return name
@@ -74,6 +77,13 @@ export function Speakers() {
           })}
         </div>
 
+        <BlurFade>
+          <div className="flex justify-center pt-2">
+            <CtaLink href={EVENT.checkout} lote={ACTIVE.name} preco={`R$${ACTIVE.price}`}>
+              Garantir minha vaga por R${ACTIVE.price}
+            </CtaLink>
+          </div>
+        </BlurFade>
       </div>
     </section>
   );

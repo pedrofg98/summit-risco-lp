@@ -6,7 +6,10 @@ import {
 } from "@/components/ui/accordion";
 import { BlurFade } from "@/components/magicui/blur-fade";
 import { SectionHeading } from "./SectionHeading";
-import { FAQ } from "@/data/summit";
+import { CtaLink } from "./CtaLink";
+import { EVENT, FAQ, getActiveLote } from "@/data/summit";
+
+const ACTIVE = getActiveLote();
 
 export function Faq() {
   return (
@@ -27,6 +30,14 @@ export function Faq() {
               </AccordionItem>
             ))}
           </Accordion>
+        </BlurFade>
+
+        <BlurFade>
+          <div className="flex justify-center pt-2">
+            <CtaLink href={EVENT.checkout} lote={ACTIVE.name} preco={`R$${ACTIVE.price}`}>
+              Garantir minha vaga por R${ACTIVE.price}
+            </CtaLink>
+          </div>
         </BlurFade>
       </div>
     </section>
