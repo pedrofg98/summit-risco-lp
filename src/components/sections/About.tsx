@@ -82,7 +82,6 @@ export function About() {
             </div>
           </BlurFade>
         </div>
-        </div>
 
         <BlurFade>
           <div className="flex justify-center pt-2">
