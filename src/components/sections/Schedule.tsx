@@ -1,8 +1,11 @@
 import { Mic } from "lucide-react";
 import { BlurFade } from "@/components/magicui/blur-fade";
 import { SectionHeading } from "./SectionHeading";
-import { SCHEDULE } from "@/data/summit";
+import { CtaLink } from "./CtaLink";
+import { EVENT, SCHEDULE, getActiveLote } from "@/data/summit";
 import { cn } from "@/lib/utils";
+
+const ACTIVE = getActiveLote();
 
 export function Schedule() {
   return (
