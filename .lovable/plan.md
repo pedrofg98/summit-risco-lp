@@ -1,32 +1,45 @@
-## Objetivo
-Criar uma rota `/v2` duplicando a página principal, com uma variante do Hero que usa `bg_fundo_mobile_v2.webp` como fundo mobile e move o padding de baixo para cima (para a imagem dos palestrantes aparecer primeiro, empurrando o conteúdo do hero para baixo).
+## Distribuir o CTA ao longo da página
 
-## Alterações
+Hoje o botão dourado/verde (`CtaLink`) aparece em **Hero**, **Audience** e **Pricing**. Entre eles existem trechos longos sem chamada à ação (About → Includes, Schedule → Speakers → Testimonials, e a Faq no fim).
 
-### 1. Upload do asset
-- `lovable-assets create --file /mnt/user-uploads/bg_fundo_mobile_v2.webp` → grava `src/assets/bg-fundo-mobile-v2.webp.asset.json`.
+### O que adicionar
 
-### 2. Novo Hero variante: `src/components/sections/HeroV2.tsx`
-Cópia de `Hero.tsx` com duas diferenças:
-- Importa `bg-fundo-mobile-v2.webp.asset.json` em vez de `bg-fundo-hero-mobile.webp.asset.json`.
-- No `shell`: trocar `py-14 pb-[360px] md:py-16 ... lg:pb-14` por `pt-[360px] pb-14 md:py-16 ... lg:pt-14`. No mobile, o `pt-[360px]` empurra o conteúdo para baixo (revelando a imagem com os palestrantes no topo); no desktop volta ao padrão.
+Inserir um `CtaLink` centralizado ao final das seções abaixo, mantendo o mesmo padrão visual usado em `Audience.tsx` (envolvido em `BlurFade`, dentro de um `flex justify-center` com leve `pt`):
 
-### 3. Nova página: `src/components/SummitPageV2.tsx`
-Cópia de `SummitPage.tsx` trocando apenas `Hero` por `HeroV2`. Mantém todas as outras seções idênticas.
+1. **About** — após o conteúdo principal
+2. **Schedule** — após a grade de horários
+3. **Speakers** — após o grid de palestrantes
+4. **Testimonials** — após o marquee/grid de depoimentos
+5. **Faq** — após a lista de perguntas (fechamento da página antes do footer)
 
-### 4. Nova rota: `src/routes/v2.tsx`
+Resultado: CTA aparece em Hero → About → Audience → Schedule → Speakers → Testimonials → Pricing → Faq. Bem distribuído, sem repetir em seções vizinhas curtas (Divide, Includes ficam de fora para não ficar redundante com Audience logo abaixo).
+
+### Padrão do snippet inserido
+
 ```tsx
-import { createFileRoute } from "@tanstack/react-router";
-import SummitPageV2 from "@/components/SummitPageV2";
+import { CtaLink } from "./CtaLink";
+import { EVENT, getActiveLote } from "@/data/summit";
+const ACTIVE = getActiveLote();
 
-export const Route = createFileRoute("/v2")({
-  head: () => ({ meta: [ /* mesmo conteúdo do index */ ] }),
-  component: SummitPageV2,
-});
+<BlurFade>
+  <div className="flex justify-center pt-4">
+    <CtaLink href={EVENT.checkout} lote={ACTIVE.name} preco={`R$${ACTIVE.price}`}>
+      Garantir minha vaga por R${ACTIVE.price}
+    </CtaLink>
+  </div>
+</BlurFade>
 ```
-O plugin do TanStack regenera `routeTree.gen.ts` automaticamente.
 
-## Resultado
-- `/` continua igual (imagem mobile atual, padding em baixo).
-- `/v2` usa a nova imagem mobile e o conteúdo do hero aparece abaixo da imagem dos palestrantes.
-- Desktop em ambas as rotas permanece inalterado.
+### Escopo nas duas variações
+
+`Hero` e `HeroV2` são os únicos componentes específicos da rota `/v2`. Todas as outras seções (`About`, `Schedule`, `Speakers`, `Testimonials`, `Faq`) são **compartilhadas** entre `SummitPage` (`/`) e `SummitPageV2` (`/v2`) — então editar cada arquivo uma vez já cobre as duas páginas automaticamente. Nada precisa ser duplicado.
+
+### Arquivos alterados
+
+- `src/components/sections/About.tsx`
+- `src/components/sections/Schedule.tsx`
+- `src/components/sections/Speakers.tsx`
+- `src/components/sections/Testimonials.tsx`
+- `src/components/sections/Faq.tsx`
+
+Nenhuma alteração de lógica, dados ou estilo das seções existentes — apenas o bloco do CTA no final de cada uma.
