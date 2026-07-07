@@ -41,7 +41,7 @@ async function appendToSheet(values: string[]): Promise<void> {
     return;
   }
   const url =
-    `${GATEWAY}/spreadsheets/${SHEET_ID}/values/${SHEET_TAB}!A:L:append` +
+    `${GATEWAY}/spreadsheets/${SHEET_ID}/values/${SHEET_TAB}!A1:append` +
     `?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`;
   const res = await fetch(url, {
     method: "POST",
