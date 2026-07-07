@@ -1,45 +1,36 @@
-## Distribuir o CTA ao longo da página
+# Verificação end-to-end do formulário → Google Sheets
 
-Hoje o botão dourado/verde (`CtaLink`) aparece em **Hero**, **Audience** e **Pricing**. Entre eles existem trechos longos sem chamada à ação (About → Includes, Schedule → Speakers → Testimonials, e a Faq no fim).
+## Objetivo
+Confirmar que um envio real do formulário de pré-cadastro chega corretamente na planilha do Google Sheets, com todos os campos preenchidos nas colunas certas.
 
-### O que adicionar
+## Passos
 
-Inserir um `CtaLink` centralizado ao final das seções abaixo, mantendo o mesmo padrão visual usado em `Audience.tsx` (envolvido em `BlurFade`, dentro de um `flex justify-center` com leve `pt`):
+1. **Ler o código do endpoint e do formulário**
+   - `src/routes/api/public/lead.ts` (endpoint que grava na planilha)
+   - Componente do formulário de checkout (`CtaLink` / modal de pré-cadastro)
+   - Identificar: Sheet ID, aba usada, ordem esperada das colunas e schema Zod.
 
-1. **About** — após o conteúdo principal
-2. **Schedule** — após a grade de horários
-3. **Speakers** — após o grid de palestrantes
-4. **Testimonials** — após o marquee/grid de depoimentos
-5. **Faq** — após a lista de perguntas (fechamento da página antes do footer)
+2. **Ler o estado atual da planilha via conector Google Sheets**
+   - Usar `standard_connectors--call_gateway_connection` para ler as últimas linhas da aba usada pelo endpoint.
+   - Registrar a última linha atual (baseline) e cabeçalhos.
 
-Resultado: CTA aparece em Hero → About → Audience → Schedule → Speakers → Testimonials → Pricing → Faq. Bem distribuído, sem repetir em seções vizinhas curtas (Divide, Includes ficam de fora para não ficar redundante com Audience logo abaixo).
+3. **Enviar um lead de teste real**
+   - Usar `stack_modern--invoke-server-function` com `POST /api/public/lead` e um payload marcado (ex.: `nome: "TESTE_LOVABLE_<timestamp>"`, email/telefone fictícios, UTMs de teste).
+   - Confirmar `200 { ok: true }`.
 
-### Padrão do snippet inserido
+4. **Reler a planilha e comparar**
+   - Buscar a linha nova pelo marcador do nome.
+   - Validar coluna a coluna: nome, email, telefone, lote, preço, UTMs, timestamp.
+   - Reportar qualquer campo faltante, deslocado ou mal formatado.
 
-```tsx
-import { CtaLink } from "./CtaLink";
-import { EVENT, getActiveLote } from "@/data/summit";
-const ACTIVE = getActiveLote();
+5. **Testar caminho de erro (validação)**
+   - Enviar um payload inválido (ex.: email vazio) e confirmar que o endpoint retorna erro e **não** grava linha na planilha.
 
-<BlurFade>
-  <div className="flex justify-center pt-4">
-    <CtaLink href={EVENT.checkout} lote={ACTIVE.name} preco={`R$${ACTIVE.price}`}>
-      Garantir minha vaga por R${ACTIVE.price}
-    </CtaLink>
-  </div>
-</BlurFade>
-```
+## Entregável
+Relatório curto no chat com:
+- Status do envio válido (OK / falhou) + linha resultante.
+- Status do envio inválido (rejeitado como esperado?).
+- Qualquer discrepância entre o que o formulário envia e o que aparece na planilha, com sugestão de correção se necessário.
 
-### Escopo nas duas variações
-
-`Hero` e `HeroV2` são os únicos componentes específicos da rota `/v2`. Todas as outras seções (`About`, `Schedule`, `Speakers`, `Testimonials`, `Faq`) são **compartilhadas** entre `SummitPage` (`/`) e `SummitPageV2` (`/v2`) — então editar cada arquivo uma vez já cobre as duas páginas automaticamente. Nada precisa ser duplicado.
-
-### Arquivos alterados
-
-- `src/components/sections/About.tsx`
-- `src/components/sections/Schedule.tsx`
-- `src/components/sections/Speakers.tsx`
-- `src/components/sections/Testimonials.tsx`
-- `src/components/sections/Faq.tsx`
-
-Nenhuma alteração de lógica, dados ou estilo das seções existentes — apenas o bloco do CTA no final de cada uma.
+## Observação
+Esta verificação é **somente leitura + 1 envio de teste**. Nenhum código do app será alterado nesta etapa. Se algum problema for encontrado, proponho as correções em um plano separado antes de mexer em código.
