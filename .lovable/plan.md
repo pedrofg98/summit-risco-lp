@@ -1,36 +1,31 @@
-# Verificação end-to-end do formulário → Google Sheets
+# Corrigir gravação de leads na planilha
 
-## Objetivo
-Confirmar que um envio real do formulário de pré-cadastro chega corretamente na planilha do Google Sheets, com todos os campos preenchidos nas colunas certas.
+## Problema
+Todos os leads desde 22/06 caem na planilha só com o timestamp na coluna L, com nome/email/telefone/UTMs vazios. Confirmado agora: o lead das 10:03 de hoje também veio quebrado. Causa raiz é a combinação de dois pontos:
 
-## Passos
+1. **`values:append` com range `Leads!A:L`** — o Sheets detecta a "tabela" pela última linha com dado; como uma linha antiga ficou torta (só L preenchida), toda append seguinte começa em L, e como só cabe 1 valor até o fim do range, só o primeiro item do array (`formatDateBR()`) é escrito. Vira loop de feedback.
+2. **Cabeçalho com 10 colunas** (falta `utm_content` e `utm_term`) enquanto o código grava 12. Ajudou a "perder" a referência da tabela.
 
-1. **Ler o código do endpoint e do formulário**
-   - `src/routes/api/public/lead.ts` (endpoint que grava na planilha)
-   - Componente do formulário de checkout (`CtaLink` / modal de pré-cadastro)
-   - Identificar: Sheet ID, aba usada, ordem esperada das colunas e schema Zod.
+## Correções
 
-2. **Ler o estado atual da planilha via conector Google Sheets**
-   - Usar `standard_connectors--call_gateway_connection` para ler as últimas linhas da aba usada pelo endpoint.
-   - Registrar a última linha atual (baseline) e cabeçalhos.
+### 1. `src/routes/api/public/lead.ts`
+Trocar o range de append de `Leads!A:L:append` para `Leads!A1:append`. Com um anchor de célula única, o Sheets sempre começa a nova linha em A e distribui os 12 valores em A→L corretamente.
 
-3. **Enviar um lead de teste real**
-   - Usar `stack_modern--invoke-server-function` com `POST /api/public/lead` e um payload marcado (ex.: `nome: "TESTE_LOVABLE_<timestamp>"`, email/telefone fictícios, UTMs de teste).
-   - Confirmar `200 { ok: true }`.
+### 2. Cabeçalho da planilha (aba `Leads`, linha 1)
+Escrever via API os 12 cabeçalhos corretos, na ordem exata gravada pelo endpoint:
 
-4. **Reler a planilha e comparar**
-   - Buscar a linha nova pelo marcador do nome.
-   - Validar coluna a coluna: nome, email, telefone, lote, preço, UTMs, timestamp.
-   - Reportar qualquer campo faltante, deslocado ou mal formatado.
+```
+data | nome | email | telefone | lote | preco | utm_source | utm_medium | utm_campaign | utm_content | utm_term | url
+```
 
-5. **Testar caminho de erro (validação)**
-   - Enviar um payload inválido (ex.: email vazio) e confirmar que o endpoint retorna erro e **não** grava linha na planilha.
+Isso substitui o cabeçalho atual (10 colunas, sem `utm_content` e `utm_term`).
 
-## Entregável
-Relatório curto no chat com:
-- Status do envio válido (OK / falhou) + linha resultante.
-- Status do envio inválido (rejeitado como esperado?).
-- Qualquer discrepância entre o que o formulário envia e o que aparece na planilha, com sugestão de correção se necessário.
+### 3. Verificação
+- Enviar um `POST /api/public/lead` de teste marcado (nome `TESTE_LOVABLE_FIX`).
+- Reler as últimas linhas da planilha e confirmar que as 12 colunas foram preenchidas na ordem certa.
+- Reportar no chat: ✅ ou ❌ com evidência.
 
-## Observação
-Esta verificação é **somente leitura + 1 envio de teste**. Nenhum código do app será alterado nesta etapa. Se algum problema for encontrado, proponho as correções em um plano separado antes de mexer em código.
+## Fora de escopo (posso propor depois, se quiser)
+- Limpar as ~30 linhas antigas quebradas (só têm timestamp, os leads em si são irrecuperáveis).
+- Endurecer o endpoint com verificação de `Origin` para bloquear POST de fora dos seus domínios.
+- Adicionar rate limit / honeypot contra bots.
