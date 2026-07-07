@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import SummitPageV2 from "@/components/SummitPageV2";
+import SummitPage from "@/components/SummitPage";
 
 export const Route = createFileRoute("/v2")({
   head: () => ({
@@ -19,5 +19,5 @@ export const Route = createFileRoute("/v2")({
       { name: "theme-color", content: "#0A0A0A" },
     ],
   }),
-  component: SummitPageV2,
+  component: SummitPage,
 });

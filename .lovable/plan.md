@@ -1,31 +1,23 @@
-# Corrigir gravação de leads na planilha
+# Trocar `/v2` ↔ `/` (página principal)
 
-## Problema
-Todos os leads desde 22/06 caem na planilha só com o timestamp na coluna L, com nome/email/telefone/UTMs vazios. Confirmado agora: o lead das 10:03 de hoje também veio quebrado. Causa raiz é a combinação de dois pontos:
+Objetivo: a atual `/v2` (com `SummitPageV2`) vira a home `/`, e a atual `/` (com `SummitPage`) passa a viver em `/v2`.
 
-1. **`values:append` com range `Leads!A:L`** — o Sheets detecta a "tabela" pela última linha com dado; como uma linha antiga ficou torta (só L preenchida), toda append seguinte começa em L, e como só cabe 1 valor até o fim do range, só o primeiro item do array (`formatDateBR()`) é escrito. Vira loop de feedback.
-2. **Cabeçalho com 10 colunas** (falta `utm_content` e `utm_term`) enquanto o código grava 12. Ajudou a "perder" a referência da tabela.
+## Mudanças
 
-## Correções
+Apenas o componente que cada rota renderiza troca — os arquivos de rota, metadados e componentes existentes ficam.
 
-### 1. `src/routes/api/public/lead.ts`
-Trocar o range de append de `Leads!A:L:append` para `Leads!A1:append`. Com um anchor de célula única, o Sheets sempre começa a nova linha em A e distribui os 12 valores em A→L corretamente.
+1. `src/routes/index.tsx` — trocar o import/component:
+   - `import SummitPage` → `import SummitPageV2 from "@/components/SummitPageV2"`
+   - `component: SummitPage` → `component: SummitPageV2`
+2. `src/routes/v2.tsx` — inverso:
+   - `import SummitPageV2` → `import SummitPage from "@/components/SummitPage"`
+   - `component: SummitPageV2` → `component: SummitPage`
 
-### 2. Cabeçalho da planilha (aba `Leads`, linha 1)
-Escrever via API os 12 cabeçalhos corretos, na ordem exata gravada pelo endpoint:
+## Verificação
+- Abrir `/` no preview → confere que aparece o conteúdo que hoje está em `/v2` (com o fundo novo).
+- Abrir `/v2` → confere que aparece o conteúdo antigo da home.
 
-```
-data | nome | email | telefone | lote | preco | utm_source | utm_medium | utm_campaign | utm_content | utm_term | url
-```
-
-Isso substitui o cabeçalho atual (10 colunas, sem `utm_content` e `utm_term`).
-
-### 3. Verificação
-- Enviar um `POST /api/public/lead` de teste marcado (nome `TESTE_LOVABLE_FIX`).
-- Reler as últimas linhas da planilha e confirmar que as 12 colunas foram preenchidas na ordem certa.
-- Reportar no chat: ✅ ou ❌ com evidência.
-
-## Fora de escopo (posso propor depois, se quiser)
-- Limpar as ~30 linhas antigas quebradas (só têm timestamp, os leads em si são irrecuperáveis).
-- Endurecer o endpoint com verificação de `Origin` para bloquear POST de fora dos seus domínios.
-- Adicionar rate limit / honeypot contra bots.
+## Fora de escopo
+- Não vou mexer nos metadados (title, description, og) — já são idênticos nas duas rotas.
+- Não vou renomear os componentes `SummitPage` / `SummitPageV2` para evitar mudar código não pedido.
+- Não vou criar redirect de `/v2` → `/`; a `/v2` continua acessível com o conteúdo antigo, conforme o pedido.
