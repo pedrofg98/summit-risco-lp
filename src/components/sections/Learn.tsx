@@ -41,7 +41,7 @@ export function Learn() {
 
         <BlurFade delay={0.1}>
           <div className="flex justify-center">
-            <CtaLink href={EVENT.checkout} lote={ACTIVE.name} preco={`R$${ACTIVE.price}`}>Garantir minha vaga por R${ACTIVE.price}</CtaLink>
+            <CtaLink href={ACTIVE.link} lote={ACTIVE.name} preco={`R$${ACTIVE.price}`}>Garantir minha vaga por R${ACTIVE.price}</CtaLink>
           </div>
         </BlurFade>
       </div>
