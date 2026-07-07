@@ -29,7 +29,7 @@ export function Footer() {
             </p>
           </BlurFade>
           <BlurFade delay={0.28}>
-            <CtaLink href={EVENT.checkout} lote={ACTIVE.name} preco={`R$${ACTIVE.price}`}>Garantir minha vaga por R${ACTIVE.price}</CtaLink>
+            <CtaLink href={ACTIVE.link} lote={ACTIVE.name} preco={`R$${ACTIVE.price}`}>Garantir minha vaga por R${ACTIVE.price}</CtaLink>
           </BlurFade>
         </div>
       </div>

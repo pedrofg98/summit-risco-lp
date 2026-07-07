@@ -85,7 +85,7 @@ export function About() {
 
         <BlurFade>
           <div className="flex justify-center pt-2">
-            <CtaLink href={EVENT.checkout} lote={ACTIVE.name} preco={`R$${ACTIVE.price}`}>
+            <CtaLink href={ACTIVE.link} lote={ACTIVE.name} preco={`R$${ACTIVE.price}`}>
               Garantir minha vaga por R${ACTIVE.price}
             </CtaLink>
           </div>
