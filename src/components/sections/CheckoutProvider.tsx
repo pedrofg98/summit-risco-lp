@@ -11,8 +11,45 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
-import { buildKiwifyUrl, loadStoredLead, maskPhoneBR, saveStoredLead, type Lead } from "@/lib/kiwify";
+import { buildKiwifyUrl, loadStoredLead, maskPhoneBR, phoneE164, saveStoredLead, splitName, type Lead } from "@/lib/kiwify";
 import { captureUtmsFromUrl, getStoredUtms } from "@/lib/utm";
+
+const META_PIXEL_ID = "2279862262756903";
+
+declare global {
+  interface Window {
+    fbq?: (...args: unknown[]) => void;
+  }
+}
+
+function readCookie(name: string): string {
+  if (typeof document === "undefined") return "";
+  const match = document.cookie.match(new RegExp("(?:^|; )" + name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "=([^;]*)"));
+  return match ? decodeURIComponent(match[1]) : "";
+}
+
+function randomEventId(): string {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) return crypto.randomUUID();
+  return `evt_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+}
+
+async function postCapi(body: Record<string, string>): Promise<void> {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 2500);
+  try {
+    await fetch("/api/public/meta-capi", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+      signal: ctrl.signal,
+      keepalive: true,
+    });
+  } catch {
+    // silencioso
+  } finally {
+    clearTimeout(timer);
+  }
+}
 
 interface CheckoutMeta {
   lote?: string;
