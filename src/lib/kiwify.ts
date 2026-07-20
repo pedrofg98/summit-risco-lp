@@ -8,6 +8,20 @@ export function normalizePhone(input: string): string {
   return `55${digits}`;
 }
 
+/** Retorna o telefone em formato E.164 (+55...) para o Meta Pixel/CAPI. */
+export function phoneE164(input: string): string {
+  const d = normalizePhone(input);
+  return d ? `+${d}` : "";
+}
+
+/** Divide "Nome Sobrenome Composto" em { firstName, lastName }. */
+export function splitName(full: string): { firstName: string; lastName: string } {
+  const parts = full.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return { firstName: "", lastName: "" };
+  if (parts.length === 1) return { firstName: parts[0], lastName: "" };
+  return { firstName: parts[0], lastName: parts.slice(1).join(" ") };
+}
+
 /** Aplica máscara BR: (99) 99999-9999 ou (99) 9999-9999. */
 export function maskPhoneBR(input: string): string {
   const d = input.replace(/\D/g, "").slice(0, 11);

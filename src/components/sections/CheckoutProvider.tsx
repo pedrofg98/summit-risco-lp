@@ -11,8 +11,45 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
-import { buildKiwifyUrl, loadStoredLead, maskPhoneBR, saveStoredLead, type Lead } from "@/lib/kiwify";
+import { buildKiwifyUrl, loadStoredLead, maskPhoneBR, phoneE164, saveStoredLead, splitName, type Lead } from "@/lib/kiwify";
 import { captureUtmsFromUrl, getStoredUtms } from "@/lib/utm";
+
+const META_PIXEL_ID = "2279862262756903";
+
+declare global {
+  interface Window {
+    fbq?: (...args: unknown[]) => void;
+  }
+}
+
+function readCookie(name: string): string {
+  if (typeof document === "undefined") return "";
+  const match = document.cookie.match(new RegExp("(?:^|; )" + name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "=([^;]*)"));
+  return match ? decodeURIComponent(match[1]) : "";
+}
+
+function randomEventId(): string {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) return crypto.randomUUID();
+  return `evt_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+}
+
+async function postCapi(body: Record<string, string>): Promise<void> {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 2500);
+  try {
+    await fetch("/api/public/meta-capi", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+      signal: ctrl.signal,
+      keepalive: true,
+    });
+  } catch {
+    // silencioso
+  } finally {
+    clearTimeout(timer);
+  }
+}
 
 interface CheckoutMeta {
   lote?: string;
@@ -124,19 +161,69 @@ export function CheckoutProvider({ children }: { children: ReactNode }) {
 
     const utms = getStoredUtms();
     const meta = metaRef.current;
-    await postLead({
-      name: lead.name,
-      email: lead.email,
-      phone: lead.phone,
-      lote: meta.lote ?? "",
-      preco: meta.preco ?? "",
-      utm_source: utms.utm_source ?? "",
-      utm_medium: utms.utm_medium ?? "",
-      utm_campaign: utms.utm_campaign ?? "",
-      utm_content: utms.utm_content ?? "",
-      utm_term: utms.utm_term ?? "",
-      url: typeof window !== "undefined" ? window.location.href : "",
-    });
+    const pageUrl = typeof window !== "undefined" ? window.location.href : "";
+    const eventId = randomEventId();
+    const emailNorm = lead.email.trim().toLowerCase();
+    const phoneDigits = lead.phone.replace(/\D/g, "");
+    const phoneWithBR = phoneDigits.startsWith("55") ? phoneDigits : `55${phoneDigits}`;
+    const { firstName, lastName } = splitName(lead.name);
+    const fbp = readCookie("_fbp");
+    const fbc = readCookie("_fbc");
+
+    // 1) Pixel do navegador com Advanced Matching + evento Lead deduplicado
+    if (typeof window !== "undefined" && typeof window.fbq === "function") {
+      try {
+        const am: Record<string, string> = {
+          em: emailNorm,
+          ph: phoneE164(lead.phone),
+          fn: firstName.trim().toLowerCase(),
+        };
+        if (lastName) am.ln = lastName.trim().toLowerCase();
+        window.fbq("init", META_PIXEL_ID, am);
+        const custom: Record<string, unknown> = {};
+        if (meta.lote) custom.content_name = meta.lote;
+        const priceNum = meta.preco
+          ? Number.parseFloat(meta.preco.replace(/[^\d,.-]/g, "").replace(",", "."))
+          : NaN;
+        if (Number.isFinite(priceNum) && priceNum > 0) {
+          custom.value = priceNum;
+          custom.currency = "BRL";
+        }
+        window.fbq("track", "Lead", custom, { eventID: eventId });
+      } catch {
+        // ignora falha de tracking
+      }
+    }
+
+    // 2) Sheets + CAPI em paralelo (nenhum trava o redirect)
+    await Promise.allSettled([
+      postLead({
+        name: lead.name,
+        email: lead.email,
+        phone: lead.phone,
+        lote: meta.lote ?? "",
+        preco: meta.preco ?? "",
+        utm_source: utms.utm_source ?? "",
+        utm_medium: utms.utm_medium ?? "",
+        utm_campaign: utms.utm_campaign ?? "",
+        utm_content: utms.utm_content ?? "",
+        utm_term: utms.utm_term ?? "",
+        url: pageUrl,
+      }),
+      postCapi({
+        eventId,
+        eventName: "Lead",
+        name: lead.name,
+        email: emailNorm,
+        phone: phoneWithBR,
+        fbp,
+        fbc,
+        userAgent: typeof navigator !== "undefined" ? navigator.userAgent : "",
+        url: pageUrl,
+        lote: meta.lote ?? "",
+        preco: meta.preco ?? "",
+      }),
+    ]);
 
     const url = buildKiwifyUrl(targetHref, lead);
     window.location.href = url;
