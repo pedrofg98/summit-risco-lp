@@ -259,7 +259,7 @@ export const LOTES: Lote[] = [
   },
   {
     name: "Lote 3",
-    price: "99",
+    price: "89",
     startISO: "2026-07-28T00:00:00-03:00",
     endISO: "2026-08-07T23:59:59-03:00",
     link: "https://pay.kiwify.com.br/jNsOq3X",
