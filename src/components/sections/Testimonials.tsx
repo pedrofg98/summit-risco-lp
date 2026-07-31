@@ -51,7 +51,10 @@ export function Testimonials() {
                   src={src}
                   alt="Depoimento de aluno do Método R.I.S.C.O."
                   className="h-auto w-full"
+                  width={900}
+                  height={1200}
                   loading="lazy"
+                  decoding="async"
                 />
               </button>
             ))}

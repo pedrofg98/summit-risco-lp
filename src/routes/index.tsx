@@ -18,6 +18,10 @@ export const Route = createFileRoute("/")({
       { property: "og:type", content: "website" },
       { name: "theme-color", content: "#0A0A0A" },
     ],
+    links: [
+      { rel: "preload", as: "image", href: "/__l5e/assets-v1/abe6bde4-fa0a-4e76-aa63-4db63d8eabec/bg-fundo-mobile-v2.webp", fetchPriority: "high", media: "(max-width: 1023px)" },
+      { rel: "preload", as: "image", href: "/__l5e/assets-v1/377adc8d-49dc-4153-91df-ccd2c632ec44/bg-fundo-desktop-v2.webp", fetchPriority: "high", media: "(min-width: 1024px)" },
+    ],
   }),
   component: SummitPageV2,
 });
