@@ -1,5 +1,4 @@
 import { Check, Mountain } from "lucide-react";
-import { BlurFade } from "@/components/magicui/blur-fade";
 import { CtaLink } from "./CtaLink";
 import { EVENT, LEARN, getActiveLote } from "@/data/summit";
 import bgFundoDesktop from "@/assets/bg-fundo-desktop-v2.webp.asset.json";
@@ -17,6 +16,7 @@ export function Hero() {
           alt="Palestrantes do Summit R.I.S.C.O. 2026"
           className="h-full w-full object-cover object-top"
           loading="eager"
+          fetchPriority="high"
         />
         <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-background to-transparent" />
       </div>
@@ -29,6 +29,7 @@ export function Hero() {
           aria-hidden
           className="h-full w-full object-cover object-bottom"
           loading="eager"
+          fetchPriority="high"
         />
       </div>
 
@@ -39,7 +40,7 @@ export function Hero() {
       <div className="shell relative z-10 grid items-center gap-10 py-14 pb-[360px] md:py-16 lg:min-h-[92vh] lg:grid-cols-2 lg:pb-14">
         <div className="flex max-w-2xl flex-col gap-7">
           {/* logo + data */}
-          <BlurFade delay={0.05}>
+          <div>
             <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
               <div className="flex items-center gap-2.5">
                 <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gold text-gold-ink">
@@ -62,35 +63,35 @@ export function Hero() {
                 {EVENT.date} · {EVENT.time} · Online
               </div>
             </div>
-          </BlurFade>
+          </div>
 
           {/* headline */}
-          <BlurFade delay={0.12}>
+          <div>
             <h1 className="font-display text-[2rem] leading-[1.12] sm:text-[52px] sm:leading-[1.08] font-extrabold tracking-tight text-white">
               Pare de improvisar na NR1.{" "}
               <span className="text-gold">
                 Domine o método que te dá segurança.
               </span>
             </h1>
-          </BlurFade>
+          </div>
 
           {/* subtítulo */}
-          <BlurFade delay={0.18}>
+          <div>
             <p className="max-w-xl text-base leading-relaxed text-muted-foreground">
               Um encontro criado para reunir especialistas e profissionais que
               compreenderam que a NR1 não exige apenas cumprimento de norma. Exige
               método, critério e decisões organizacionais responsáveis.
             </p>
-          </BlurFade>
+          </div>
 
           {/* bloquinhos */}
-          <BlurFade delay={0.2}>
+          <div>
             <p className="text-base font-semibold text-white md:text-lg">
               Neste Summit, você vai aprender:
             </p>
-          </BlurFade>
+          </div>
 
-          <BlurFade delay={0.26}>
+          <div>
             <div className="grid gap-3 sm:grid-cols-2">
               {LEARN.map((item, i) => (
                 <div
@@ -104,16 +105,16 @@ export function Hero() {
                 </div>
               ))}
             </div>
-          </BlurFade>
+          </div>
 
           {/* CTA */}
-          <BlurFade delay={0.34}>
+          <div>
             <div className="pt-1">
               <CtaLink href={ACTIVE.link} lote={ACTIVE.name} preco={`R$${ACTIVE.price}`}>
                 Garantir minha vaga por R${ACTIVE.price}
               </CtaLink>
             </div>
-          </BlurFade>
+          </div>
         </div>
 
         {/* coluna direita ocupada pela foto (absoluta) */}
