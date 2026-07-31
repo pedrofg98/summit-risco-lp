@@ -97,15 +97,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,600;0,700;0,800;0,900;1,700;1,900&family=Inter:wght@400;500;600;700;800;900&display=swap",
-      },
     ],
     scripts: [
       {
+        // Fontes carregadas sem bloquear a renderização inicial.
         children:
-          "!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','2279862262756903');fbq('track','PageView');",
+          "(function(){var h='https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap';var l=document.createElement('link');l.rel='stylesheet';l.href=h;l.media='print';l.onload=function(){l.media='all'};document.head.appendChild(l)})();",
+      },
+      {
+        // Meta Pixel adiado para fora do caminho crítico (primeira interação ou após o load).
+        children:
+          "!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];f.__fbLoad=function(){if(f.__fbLoaded)return;f.__fbLoaded=!0;t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','2279862262756903');fbq('track','PageView');(function(){var ev=['scroll','pointerdown','keydown','touchstart'];function go(){ev.forEach(function(x){window.removeEventListener(x,go)});window.__fbLoad()}ev.forEach(function(x){window.addEventListener(x,go,{once:true,passive:true})});if(document.readyState==='complete'){setTimeout(go,2500)}else{window.addEventListener('load',function(){setTimeout(go,2500)})}})();",
       },
     ],
   }),
