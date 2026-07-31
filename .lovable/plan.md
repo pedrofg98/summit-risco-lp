@@ -1,28 +1,27 @@
-## Objetivo
-Eliminar o atrito do formulário de pré-cadastro. Ao clicar em qualquer CTA da página, o lead é enviado direto para o checkout da Kiwify (URL do lote ativo), sem modal intermediário.
+# Otimização de velocidade (PageSpeed 69 → alvo 90+)
 
-## Escopo
-Aplicar em **ambas as versões** da página (`/` e `/v2`), já que as duas usam o mesmo `CtaLink`.
+O relatório mostra três gargalos reais: a imagem de fundo da hero demora a aparecer (LCP 5,5s),
+o CSS e as fontes bloqueiam a renderização (~990ms) e o Meta Pixel carrega cedo demais (~228 KiB).
 
-## Alterações
+## O que será feito
 
-### 1. `src/components/sections/CtaLink.tsx`
-Trocar o `<button>` que chama `openCheckout(...)` por um `<a href={href} target="_blank" rel="noopener">` mantendo exatamente o mesmo visual (gradiente verde, shine, ícone). No `onClick`, disparar `window.fbq?('track','InitiateCheckout')` para preservar o sinal no Pixel do navegador (mesmo evento que o modal disparava antes de redirecionar). Props `lote`/`preco` deixam de ser usadas — remover para manter o componente limpo. UTMs já vão anexadas via `href` porque `ACTIVE.link` é usado direto pelos componentes (Kiwify preserva query string quando presente na URL final; hoje o modal já não anexava UTM na URL do checkout, então nada muda nesse aspecto).
+### 1. Acelerar a imagem principal (maior ganho)
+- Adicionar `fetchpriority="high"` na imagem de fundo da hero (mobile e desktop) nas duas variações da página.
+- Adicionar `<link rel="preload" as="image">` da imagem correta no `head()` da rota, com `media` para não baixar as duas versões.
+- Remover a animação de entrada (BlurFade) dos elementos acima da dobra da hero, que hoje adia a pintura em ~1,9s ("element render delay").
 
-### 2. Remover uso do `CheckoutProvider`
-- `src/components/SummitPage.tsx` e `src/components/SummitPageV2.tsx`: remover o wrapper `<CheckoutProvider>` em volta da árvore.
-- Manter os arquivos `CheckoutProvider.tsx`, `src/lib/kiwify.ts`, `src/routes/api/public/lead.ts` e `src/routes/api/public/meta-capi.ts` **intactos no repositório** — assim voltamos rápido se o teste A/B der negativo. Apenas deixam de ser importados.
+### 2. Reduzir o bloqueio de renderização das fontes
+- Trocar o `<link rel="stylesheet">` do Google Fonts por carregamento não bloqueante (`media="print"` + `onload`), com `<noscript>` de fallback.
+- Reduzir os pesos das fontes carregados apenas aos usados (hoje são 15 variações), diminuindo os dois arquivos woff2 de ~83 KiB.
 
-### 3. Sem outras mudanças
-- Meta Pixel base (`PageView`) no `__root.tsx` continua igual.
-- Preços, links de lote, seções, layout: sem alteração.
-- CAPI server-side (`/api/public/meta-capi`) e gravação de leads na planilha (`/api/public/lead`) ficam ociosos, prontos para religar depois.
+### 3. Adiar o Meta Pixel
+- Manter o Pixel, mas iniciar o carregamento do `fbevents.js` após a interação do usuário ou após o `load` da página (fallback por timeout curto).
+- O `PageView` continua sendo disparado normalmente — só sai do caminho crítico do carregamento.
 
-## Impacto esperado
-- Menos etapas até o checkout → hipótese de conversão maior.
-- Perdemos temporariamente a captura de e-mail/telefone dos leads que não finalizam a compra (base de remarketing por lista custom fica pausada durante o teste).
-- Advanced Matching / CAPI de `Lead` deixa de ocorrer; o Pixel continua registrando `PageView` e `InitiateCheckout` no clique.
+### 4. Corrigir CLS potencial nas imagens
+- Definir `width`/`height` explícitos nas imagens de depoimentos (a galeria masonry mantém o layout, mas o navegador reserva o espaço), evitando saltos de layout.
 
 ## Detalhes técnicos
-- `CtaLink` passa a ser um `<a>` real (melhor para acessibilidade e para o Pixel/Kiwify tratarem como navegação normal).
-- `target="_blank"` mantém o comportamento atual (o modal também abria o Kiwify em nova aba). Se preferir mesma aba, ajusto.
+- Arquivos: `src/routes/index.tsx`, `src/routes/v2.tsx`, `src/routes/__root.tsx`, `src/components/sections/Hero.tsx`, `HeroV2.tsx`, `Testimonials.tsx`.
+- Nenhuma mudança visual: mesma arte, mesmas cores, mesmo layout. A única diferença perceptível é a hero aparecer sem fade inicial.
+- O preload por `media` evita baixar as duas imagens de fundo no mesmo dispositivo.
