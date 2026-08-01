@@ -38,81 +38,36 @@ export function Hero() {
 
       <div className="shell relative z-10 grid items-center gap-10 py-14 pb-[360px] md:py-16 lg:min-h-[92vh] lg:grid-cols-2 lg:pb-14">
         <div className="flex max-w-2xl flex-col gap-7">
-          {/* logo + data */}
-          <div>
-            <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
-              <div className="flex items-center gap-2.5">
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gold text-gold-ink">
-                  <Mountain className="h-5 w-5" />
-                </span>
-                <div className="leading-none">
-                  <p className="font-display text-lg font-black uppercase tracking-tight text-white">
-                    Summit <span className="text-gold">R.I.S.C.O.</span>
-                  </p>
-                  <p className="mt-1 text-[0.6rem] font-semibold uppercase tracking-[0.34em] text-muted-foreground">
-                    2026
-                  </p>
-                </div>
-              </div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-gold/[0.07] px-4 py-2 text-xs font-semibold text-gold sm:text-sm">
-                <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-gold opacity-70" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-gold" />
-                </span>
-                {EVENT.date} · {EVENT.time} · Online
-              </div>
-            </div>
-          </div>
+          <h1 className="font-display text-[2rem] leading-[1.12] sm:text-[52px] sm:leading-[1.08] font-extrabold tracking-tight text-white">
+            O mercado dos riscos psicossociais mudou.
+          </h1>
 
-          {/* headline */}
-          <div>
-            <h1 className="font-display text-[2rem] leading-[1.12] sm:text-[52px] sm:leading-[1.08] font-extrabold tracking-tight text-white">
-              Pare de improvisar na NR1.{" "}
-              <span className="text-gold">
-                Domine o método que te dá segurança.
-              </span>
-            </h1>
-          </div>
+          <p className="font-display text-xl font-semibold text-white sm:text-2xl">
+            A pergunta é: você estará entre os profissionais preparados?
+          </p>
 
-          {/* subtítulo */}
-          <div>
+          <div className="flex flex-col gap-4">
             <p className="max-w-xl text-base leading-relaxed text-muted-foreground">
-              Um encontro criado para reunir especialistas e profissionais que
-              compreenderam que a NR1 não exige apenas cumprimento de norma. Exige
-              método, critério e decisões organizacionais responsáveis.
+              Milhares de empresas precisarão de profissionais capazes de
+              conduzir o mapeamento dos riscos psicossociais com método,
+              segurança e responsabilidade.
+            </p>
+
+            <p className="max-w-xl text-base leading-relaxed text-muted-foreground">
+              O Summit R.I.S.C.O. foi criado para quem decidiu liderar esse
+              movimento.
+            </p>
+
+            <p className="max-w-xl text-base leading-relaxed text-muted-foreground">
+              1 evento de um sábado inteiro comigo e mais 7 profissionais
+              renomados do mercado pra te ajudar a dar o próximo passo
             </p>
           </div>
 
-          {/* bloquinhos */}
-          <div>
-            <p className="text-base font-semibold text-white md:text-lg">
-              Neste Summit, você vai aprender:
-            </p>
-          </div>
-
-          <div>
-            <div className="grid gap-3 sm:grid-cols-2">
-              {LEARN.map((item, i) => (
-                <div
-                  key={i}
-                  className="flex items-start gap-3 rounded-xl border border-border bg-card/70 p-4 backdrop-blur-sm transition-colors hover:border-gold/35"
-                >
-                  <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-gold text-gold-ink">
-                    <Check className="h-4 w-4" strokeWidth={3} />
-                  </span>
-                  <p className="text-[0.85rem] leading-snug text-white/85">{item}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* CTA */}
-          <div>
-            <div className="pt-1">
-              <CtaLink href={ACTIVE.link} lote={ACTIVE.name} preco={`R$${ACTIVE.price}`}>
-                Garantir minha vaga por R${ACTIVE.price}
-              </CtaLink>
-            </div>
+          <div className="pt-1">
+            <CtaLink href={ACTIVE.link}>
+              Garantir minha vaga por R${ACTIVE.price}
+            </CtaLink>
           </div>
         </div>
 
